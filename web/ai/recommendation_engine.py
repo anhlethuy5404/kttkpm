@@ -1,5 +1,6 @@
 import numpy as np
 from ai.services import EmbeddingService, LSTMInferenceService, UserProfileService
+from ai.neo4j_service import Neo4jService
 from catalog.models import Product
 from ai.models import ProductEmbedding
 
@@ -72,10 +73,21 @@ class RecommendationEngine:
             if user_id:
                 prod_events = events_by_product.get(prod.id, [])
                 lstm_prob = LSTMInferenceService.predict_purchase_probability_from_events(prod_events)
+                
+                # Fetch Neo4j graph similarity score
+                try:
+                    graph_score = Neo4jService.get_similarity_score(user_id, prod.id)
+                    # Cap the graph score to 1.0 for normalization
+                    graph_score = min(float(graph_score), 1.0)
+                except Exception as e:
+                    print(f"Failed to fetch Neo4j similarity score: {str(e)}")
+                    graph_score = 0.0
             else:
                 lstm_prob = 0.05
+                graph_score = 0.0
                 
-            final_score = 0.7 * similarity_norm + 0.3 * lstm_prob
+            # Hybrid recommendation score calculation
+            final_score = 0.5 * similarity_norm + 0.3 * lstm_prob + 0.2 * graph_score
             scored_products.append((prod, final_score))
             
         # Sort by final score descending

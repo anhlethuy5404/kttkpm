@@ -122,10 +122,20 @@ def home_view(request):
     personal_recommendations = []
     if request.user.is_authenticated:
         try:
-            from ai.recommendation_engine import RecommendationEngine
-            personal_recommendations = RecommendationEngine.recommend_products(user_id=request.user.id, limit=4)
+            import requests
+            # Fetch recommendations from the AI microservice via HTTP
+            response = requests.get(f"http://ai-service:8006/api/ai/recommendations/{request.user.id}/", timeout=2)
+            if response.status_code == 200:
+                rec_data = response.json().get('recommendations', [])
+                # Re-fetch product objects in the exact recommended order
+                rec_ids = [item['product_id'] for item in rec_data]
+                products_map = {p.id: p for p in Product.objects.filter(id__in=rec_ids)}
+                personal_recommendations = [products_map[p_id] for p_id in rec_ids if p_id in products_map]
+            else:
+                raise Exception(f"AI service returned status code {response.status_code}")
         except Exception as e:
-            # Fallback to random if there is any error
+            print(f"Error fetching AI recommendations: {str(e)}")
+            # Fallback to random products if the AI service is unreachable or errors
             products = list(Product.objects.all())
             if len(products) >= 4:
                 personal_recommendations = random.sample(products, 4)

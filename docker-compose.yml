@@ -1,20 +1,213 @@
 version: '3.8'
 
 services:
-  web:
+  # 1. Database quan hệ (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: ecom_postgres_db
+    environment:
+      - POSTGRES_DB=ecom_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # 2. Đồ thị tri thức (Neo4j)
+  neo4j:
+    image: neo4j:5.12
+    container_name: ecom_neo4j_db
+    ports:
+      - "7474:7474" # Neo4j Browser HTML UI
+      - "7687:7687" # Bolt Protocol for python connection
+    environment:
+      - NEO4J_AUTH=neo4j/password123
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    restart: always
+
+  # 3. User & Auth Service (Chịu trách nhiệm build base image)
+  user-service:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: ecom_web_app
+      dockerfile: web/Dockerfile
+    image: ecom_web_base:latest
+    container_name: ecom_user_service
     ports:
       - "8000:8000"
-    volumes:
-      - db_data:/app/web_db
     environment:
       - DEBUG=False
-      - DATABASE_PATH=/app/web_db/db.sqlite3
+      - PORT=8000
+      - RUN_MIGRATIONS=True
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    depends_on:
+      - db
+    restart: always
+
+  # 4. Product Catalog Service
+  product-service:
+    image: ecom_web_base:latest
+    container_name: ecom_product_service
+    ports:
+      - "8001:8001"
+    environment:
+      - DEBUG=False
+      - PORT=8001
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - KMP_DUPLICATE_LIB_OK=TRUE
+    depends_on:
+      - user-service
+    restart: always
+
+  # 5. Cart Service
+  cart-service:
+    image: ecom_web_base:latest
+    container_name: ecom_cart_service
+    ports:
+      - "8002:8002"
+    environment:
+      - DEBUG=False
+      - PORT=8002
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - KMP_DUPLICATE_LIB_OK=TRUE
+    depends_on:
+      - user-service
+    restart: always
+
+  # 6. Order Service
+  order-service:
+    image: ecom_web_base:latest
+    container_name: ecom_order_service
+    ports:
+      - "8003:8003"
+    environment:
+      - DEBUG=False
+      - PORT=8003
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - KMP_DUPLICATE_LIB_OK=TRUE
+    depends_on:
+      - user-service
+    restart: always
+
+  # 7. Payment Service
+  payment-service:
+    image: ecom_web_base:latest
+    container_name: ecom_payment_service
+    ports:
+      - "8004:8004"
+    environment:
+      - DEBUG=False
+      - PORT=8004
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - KMP_DUPLICATE_LIB_OK=TRUE
+    depends_on:
+      - user-service
+    restart: always
+
+  # 8. Shipping Service
+  shipping-service:
+    image: ecom_web_base:latest
+    container_name: ecom_shipping_service
+    ports:
+      - "8005:8005"
+    environment:
+      - DEBUG=False
+      - PORT=8005
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - KMP_DUPLICATE_LIB_OK=TRUE
+    depends_on:
+      - user-service
+    restart: always
+
+  # 9. AI Service
+  ai-service:
+    image: ecom_web_base:latest
+    container_name: ecom_ai_service
+    ports:
+      - "8006:8006"
+    environment:
+      - DEBUG=False
+      - PORT=8006
+      - DB_HOST=db
+      - DB_NAME=ecom_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - KMP_DUPLICATE_LIB_OK=TRUE
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - user-service
+      - neo4j
+    restart: always
+
+  # 10. API Gateway (Nginx Router)
+  gateway:
+    build:
+      context: .
+      dockerfile: web/gateway/Dockerfile
+    container_name: ecom_api_gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - user-service
+      - product-service
+      - cart-service
+      - order-service
+      - payment-service
+      - shipping-service
+      - ai-service
     restart: always
 
 volumes:
-  db_data:
+  postgres_data:
+  neo4j_data:
+  neo4j_logs:

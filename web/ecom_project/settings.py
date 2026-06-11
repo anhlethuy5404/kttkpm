@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-bb&wnt9e0sz#7$zw9_6@xv5kx-$h#v=7-^l6^%fr9v^s#466w6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -83,19 +84,34 @@ WSGI_APPLICATION = "ecom_project.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 import os
-db_env_path = os.environ.get("DATABASE_PATH")
-if db_env_path:
-    db_name = Path(db_env_path)
-    db_name.parent.mkdir(parents=True, exist_ok=True)
-else:
-    db_name = BASE_DIR / "db.sqlite3"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": db_name,
+DB_HOST = os.environ.get("DB_HOST")
+
+if DB_HOST:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME", "postgres"),
+            "USER": os.environ.get("DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "postgres"),
+            "HOST": DB_HOST,
+            "PORT": os.environ.get("DB_PORT", "5432"),
+        }
     }
-}
+else:
+    db_env_path = os.environ.get("DATABASE_PATH")
+    if db_env_path:
+        db_name = Path(db_env_path)
+        db_name.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        db_name = BASE_DIR / "db.sqlite3"
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": db_name,
+        }
+    }
 
 
 # Password validation

@@ -1,5 +1,6 @@
 import json
 import random
+import os
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -150,13 +151,14 @@ def chat_api(request):
         # Get query embedding
         import numpy as np
         from ai.models import ProductEmbedding
+        import requests
 
         try:
+            # 1. Retrieve candidate products using semantic search
             query_emb = EmbeddingService.get_model().encode(message_text)
-            
-            # Get cached embeddings
             emb_dict = EmbeddingService.get_all_embeddings_cached()
             
+            rec_list = []
             if emb_dict:
                 query_emb_np = np.array(query_emb)
                 query_norm = np.linalg.norm(query_emb_np)
@@ -171,7 +173,6 @@ def chat_api(request):
                 
                 similarities = np.dot(vectors_unit, query_unit)
                 
-                # Zip, sort, and select top 3 candidates
                 sim_scores = list(zip(prod_ids, similarities))
                 sim_scores.sort(key=lambda x: x[1], reverse=True)
                 top_candidates = sim_scores[:3]
@@ -180,19 +181,92 @@ def chat_api(request):
                 chat_products = Product.objects.filter(id__in=candidate_ids)
                 prod_dict = {p.id: p for p in chat_products}
                 
-                rec_list = []
                 for p_id, _ in top_candidates:
                     if p_id in prod_dict:
                         rec_list.append(prod_dict[p_id])
+
+            # 2. Call Gemini 2.5 Flash API with RAG context
+            api_key = os.environ.get("GEMINI_API_KEY")
+            if api_key:
+                # Format product details for RAG context
+                context = ""
+                for idx, p in enumerate(rec_list):
+                    context += f"\nSản phẩm {idx+1}: {p.name}\n- Giá: {float(p.price):,.0f} đ\n- Danh mục: {p.category.name if p.category else 'Khác'}\n- Mô tả: {p.description or 'Chưa có mô tả'}\n"
+
+                system_instruction = (
+                    "Bạn là trợ lý AI thông minh của cửa hàng trực tuyến E-Shop SOAD. "
+                    "Hãy đóng vai trò người tư vấn bán hàng thân thiện, chuyên nghiệp. "
+                    "Dưới đây là danh sách sản phẩm phù hợp nhất với câu hỏi của khách hàng tìm được từ cơ sở dữ liệu:\n"
+                    f"{context}\n"
+                    "Hãy trả lời câu hỏi của khách hàng bằng tiếng Việt một cách tự nhiên, sinh động, thuyết phục "
+                    "và khéo léo giới thiệu các sản phẩm phù hợp trên. Hãy giữ câu trả lời ngắn gọn, cô đọng (khoảng 3-4 câu) "
+                    "để hiển thị đẹp mắt trong bong bóng chat. Không tự bịa ra thông tin sản phẩm không có trong ngữ cảnh."
+                )
+
+                # Fetch recent history (last 5 messages before this one)
+                history_msgs = ChatMessage.objects.filter(user=request.user).order_by('-timestamp')[:5]
+                history_list = list(reversed(history_msgs))
+                # Exclude the current user message which was just saved in DB
+                history_to_add = history_list[:-1] if len(history_list) > 0 else []
+
+                # Build Gemini request contents
+                contents = []
+                # Inject system instruction + context as the first user message
+                contents.append({
+                    "role": "user",
+                    "parts": [{"text": system_instruction}]
+                })
+                # Add dummy model response to accept instruction
+                contents.append({
+                    "role": "model",
+                    "parts": [{"text": "Tôi đã hiểu. Tôi sẽ đóng vai trợ lý tư vấn bán hàng của E-Shop SOAD và trả lời dựa trên ngữ cảnh sản phẩm này."}]
+                })
+
+                # Append history
+                for msg in history_to_add:
+                    role = "user" if msg.sender == "user" else "model"
+                    contents.append({
+                        "role": role,
+                        "parts": [{"text": msg.message}]
+                    })
+
+                # Append current user query
+                contents.append({
+                    "role": "user",
+                    "parts": [{"text": message_text}]
+                })
+
+                # Call Google Gemini API (using Gemini 2.5 Flash model)
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+                headers = {"Content-Type": "application/json"}
+                payload = {
+                    "contents": contents,
+                    "generationConfig": {
+                        "temperature": 0.7,
+                        "maxOutputTokens": 400
+                    }
+                }
+                
+                response = requests.post(url, json=payload, headers=headers, timeout=10)
+                if response.status_code == 200:
+                    resp_json = response.json()
+                    answer = resp_json['candidates'][0]['content']['parts'][0]['text']
+                else:
+                    raise Exception(f"Gemini API returned status {response.status_code}: {response.text}")
             else:
-                rec_list = []
-            
-            answer = "Dựa trên mô tả của bạn, tôi tìm thấy một số sản phẩm phù hợp:"
+                # If API key is not configured, fallback to default message
+                answer = "Dựa trên mô tả của bạn, tôi tìm thấy một số sản phẩm phù hợp:"
+                
         except Exception as e:
-            # Fallback: simple random sample
-            products = Product.objects.all()
-            rec_list = list(products[:3])
-            answer = "Chào bạn! Tôi có thể giúp gì cho bạn? Dưới đây là một số sản phẩm nổi bật:"
+            print(f"Error in Gemini Chatbot API: {str(e)}")
+            # Fallback to random sample if embedding or API fails
+            try:
+                products = Product.objects.all()
+                rec_list = list(products[:3])
+            except:
+                rec_list = []
+            answer = "Chào bạn! Tôi có thể giúp gì cho bạn? Dưới đây là một số sản phẩm nổi bật của E-Shop:"
+�ới đây là một số sản phẩm nổi bật:"
 
         recommended_products = [{
             'product_id': p.id,

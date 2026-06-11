@@ -33,6 +33,7 @@ class Command(BaseCommand):
         products_to_create = []
         books_to_create = []
         seen_ids = set()
+        cat_counts = {}
 
         # 1. Seed Books from product.csv with category hierarchy
         with open(csv_path, 'r', encoding='utf-8-sig') as f:
@@ -65,6 +66,10 @@ class Command(BaseCommand):
                         parent_cat = cat
                     
                     category = parent_cat
+                    cat_id = category.id
+                    cat_counts[cat_id] = cat_counts.get(cat_id, 0) + 1
+                    if cat_counts[cat_id] > 50:
+                        continue
 
                     # Parse fields safely
                     price = float(row.get('price', 0))
@@ -185,6 +190,12 @@ class Command(BaseCommand):
                                     product_id = int(row_elec['id'])
                                     if product_id in seen_ids:
                                         continue
+                                    
+                                    cat_id = category.id
+                                    cat_counts[cat_id] = cat_counts.get(cat_id, 0) + 1
+                                    if cat_counts[cat_id] > 50:
+                                        continue
+                                        
                                     seen_ids.add(product_id)
                                     
                                     price = float(row_elec.get('price') or 0)

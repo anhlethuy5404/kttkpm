@@ -8,6 +8,7 @@ from django.contrib import messages
 from orders.models import Order
 from shipping.models import Shipment
 from .models import Payment
+from ai.neo4j_service import Neo4jService
 
 @csrf_exempt
 @login_required
@@ -46,6 +47,13 @@ def payment_pay_api(request):
                 status='processing',
                 tracking_number=f"TRK-{random.randint(10000000, 99999999)}"
             )
+
+            # Log BUY interactions in Neo4j
+            try:
+                for item in order.items.all():
+                    Neo4jService.log_user_interaction(request.user.id, item.product_id, 'BUY')
+            except Exception as e:
+                print(f"Failed to log BUY interaction in Neo4j: {str(e)}")
 
             return JsonResponse({
                 'message': 'Payment successful',
@@ -105,6 +113,13 @@ def order_payment_page(request, order_id):
                     'tracking_number': f"TRK-{random.randint(10000000, 99999999)}"
                 }
             )
+
+            # Log BUY interactions in Neo4j
+            try:
+                for item in order.items.all():
+                    Neo4jService.log_user_interaction(request.user.id, item.product_id, 'BUY')
+            except Exception as e:
+                print(f"Failed to log BUY interaction in Neo4j: {str(e)}")
 
             messages.success(request, "Thanh toán thành công! Đơn hàng đang được chuẩn bị vận chuyển.")
             return redirect('order_detail', pk=order.id)
