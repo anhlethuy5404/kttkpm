@@ -1,6 +1,10 @@
 Starting training...
-Epoch 1: train_loss=9.4008 val_loss=10.2856 val_hr@10=0.0023 val_ndcg@10=0.0010 val_mrr=0.0006 val_action_acc=0.4722
+Epoch 1: train_loss=9.4060 val_loss=10.2502 val_hr@10=0.0026 val_ndcg@10=0.0011 val_mrr=0.0006 val_action_acc=0.4722
+Epoch 2: train_loss=8.9992 val_loss=10.6011 val_hr@10=0.0023 val_ndcg@10=0.0011 val_mrr=0.0007 val_action_acc=0.4722
+Epoch 3: train_loss=8.8992 val_loss=10.8140 val_hr@10=0.0010 val_ndcg@10=0.0007 val_mrr=0.0007 val_action_acc=0.4722
+Epoch 4: train_loss=8.8601 val_loss=10.8361 val_hr@10=0.0016 val_ndcg@10=0.0008 val_mrr=0.0006 val_action_acc=0.4722
+Early stopping at epoch 4
 
 Training metrics log saved to ./data/sequential\figures\sequential_training_log.csv
 Loading best model checkpoint from checkpoints\best_sequential_model.pt...
-Test: loss=10.4005 hr@10=0.0042 ndcg@10=0.0016 mrr=0.0009 action_acc=0.4322
+Test: loss=10.3902 hr@10=0.0042 ndcg@10=0.0016 mrr=0.0009 action_acc=0.4322

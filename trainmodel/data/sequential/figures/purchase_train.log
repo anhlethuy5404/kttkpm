@@ -1,17 +1,26 @@
 Starting training...
-Epoch 01: train_loss=1.2314 | val_loss=1.0052 | val_auc=0.8656 | val_pr_auc=0.1567 | F1=0.2351
+Epoch 01: train_loss=1.1716 | val_loss=0.8245 | val_auc=0.8416 | val_pr_auc=0.1348 | F1=0.2375
   --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
-Epoch 02: train_loss=0.9097 | val_loss=0.6979 | val_auc=0.8426 | val_pr_auc=0.1307 | F1=0.2375
-Epoch 03: train_loss=0.7684 | val_loss=0.6595 | val_auc=0.8484 | val_pr_auc=0.1382 | F1=0.2375
-Epoch 04: train_loss=0.7522 | val_loss=0.6490 | val_auc=0.8511 | val_pr_auc=0.1381 | F1=0.2375
-Epoch 05: train_loss=0.7539 | val_loss=0.6436 | val_auc=0.8658 | val_pr_auc=0.1567 | F1=0.2375
+Epoch 02: train_loss=0.7887 | val_loss=0.6524 | val_auc=0.8577 | val_pr_auc=0.1488 | F1=0.2375
   --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
-Epoch 06: train_loss=0.7404 | val_loss=0.6444 | val_auc=0.8559 | val_pr_auc=0.1479 | F1=0.2375
-Epoch 07: train_loss=0.7383 | val_loss=0.6436 | val_auc=0.8566 | val_pr_auc=0.1491 | F1=0.2375
-Epoch 08: train_loss=0.7281 | val_loss=0.6418 | val_auc=0.8570 | val_pr_auc=0.1493 | F1=0.2375
-Epoch 09: train_loss=0.7319 | val_loss=0.6493 | val_auc=0.8513 | val_pr_auc=0.1454 | F1=0.2375
-Epoch 10: train_loss=0.7353 | val_loss=0.6454 | val_auc=0.8514 | val_pr_auc=0.1464 | F1=0.2375
-Early stopping at epoch 10
+Epoch 03: train_loss=0.7495 | val_loss=0.6449 | val_auc=0.8580 | val_pr_auc=0.1488 | F1=0.2375
+  --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
+Epoch 04: train_loss=0.7502 | val_loss=0.6474 | val_auc=0.8576 | val_pr_auc=0.1484 | F1=0.2375
+Epoch 05: train_loss=0.7356 | val_loss=0.6420 | val_auc=0.8624 | val_pr_auc=0.1521 | F1=0.2375
+  --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
+Epoch 06: train_loss=0.7422 | val_loss=0.6484 | val_auc=0.8513 | val_pr_auc=0.1417 | F1=0.2375
+Epoch 07: train_loss=0.7297 | val_loss=0.6419 | val_auc=0.8646 | val_pr_auc=0.1545 | F1=0.2375
+  --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
+Epoch 08: train_loss=0.7363 | val_loss=0.6445 | val_auc=0.8568 | val_pr_auc=0.1492 | F1=0.2375
+Epoch 09: train_loss=0.7338 | val_loss=0.6454 | val_auc=0.8570 | val_pr_auc=0.1495 | F1=0.2375
+Epoch 10: train_loss=0.7413 | val_loss=0.6415 | val_auc=0.8568 | val_pr_auc=0.1492 | F1=0.2375
+Epoch 11: train_loss=0.7321 | val_loss=0.6405 | val_auc=0.8657 | val_pr_auc=0.1568 | F1=0.2375
+  --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
+Epoch 12: train_loss=0.7399 | val_loss=0.6464 | val_auc=0.8568 | val_pr_auc=0.1497 | F1=0.2375
+Epoch 13: train_loss=0.7306 | val_loss=0.6410 | val_auc=0.8655 | val_pr_auc=0.1567 | F1=0.2375
+Epoch 14: train_loss=0.7250 | val_loss=0.6402 | val_auc=0.8660 | val_pr_auc=0.1569 | F1=0.2375
+  --> Saved new best checkpoint to checkpoints/best_purchase_lstm.pt
+Epoch 15: train_loss=0.7289 | val_loss=0.6467 | val_auc=0.8520 | val_pr_auc=0.1423 | F1=0.2375
 
 Training metrics log saved to ./data/sequential/figures\purchase_training_log.csv
 
@@ -23,13 +32,13 @@ TEST EVALUATION RESULTS
 +-------------------------+---------+
 | Metric                  |   Value |
 +=========================+=========+
-| Test Loss               |  0.7575 |
+| Test Loss               |  0.7564 |
 +-------------------------+---------+
 | Test Accuracy (thr=0.5) |  0.6893 |
 +-------------------------+---------+
-| Test ROC AUC            |  0.8434 |
+| Test ROC AUC            |  0.8474 |
 +-------------------------+---------+
-| Test PR AUC (Avg Prec)  |  0.1708 |
+| Test PR AUC (Avg Prec)  |  0.1747 |
 +-------------------------+---------+
 | Test Precision          |  0.153  |
 +-------------------------+---------+
