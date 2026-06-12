@@ -21,6 +21,7 @@ def parse_args():
     parser.add_argument("--stride", type=int, default=1)
     parser.add_argument("--force-regen", action="store_true")
     parser.add_argument("--lr", type=float, default=0.001)
+    parser.add_argument("--action-weight", type=float, default=0.5, help="Weight for action loss")
     parser.add_argument("--patience", type=int, default=3)
     parser.add_argument("--k", type=int, default=10)
     parser.add_argument("--fig-dir", default=None, help="Directory to save figures")
@@ -76,6 +77,7 @@ def main():
         device=device,
         epochs=args.epochs,
         lr=args.lr,
+        action_weight=args.action_weight,
         patience=args.patience,
         k=args.k,
         fig_dir=fig_dir,

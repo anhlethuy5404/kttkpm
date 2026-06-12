@@ -2,18 +2,29 @@ import os
 import torch
 import torch.nn as nn
 from tqdm import tqdm
+import numpy as np
+from sklearn.metrics import confusion_matrix, classification_report
 
 
-def save_training_visualizations(train_losses, val_history, test_metrics, fig_dir, k):
+ACTION_TYPES = [
+    "View", "Click", "Wishlist", "AddCart", "Buy", "Review", "Share", "Search",
+]
+
+
+def save_training_visualizations(train_losses, val_history, test_metrics, fig_dir, k, confusion_data=None):
     if not train_losses or not val_history:
         return
 
     os.makedirs(fig_dir, exist_ok=True)
 
     import matplotlib
-
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    import seaborn as sns
+    
+    # Set style with better colors
+    plt.style.use('seaborn-v0_8-darkgrid')
+    colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8']
 
     epochs = list(range(1, len(train_losses) + 1))
     val_losses = [m["loss"] for m in val_history]
@@ -22,37 +33,41 @@ def save_training_visualizations(train_losses, val_history, test_metrics, fig_di
     val_mrr = [m["mrr"] for m in val_history]
     val_action_acc = [m["action_acc"] for m in val_history]
 
-    plt.figure(figsize=(10, 8))
-    plt.subplot(3, 1, 1)
-    plt.plot(epochs, train_losses, label="train_loss", marker='o')
-    plt.plot(epochs, val_losses, label="val_loss", marker='o')
-    plt.title("Training and Validation Loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.legend()
+    # Training & Validation Loss
+    plt.figure(figsize=(12, 10))
+    plt.subplot(3, 2, 1)
+    plt.plot(epochs, train_losses, label="train_loss", marker='o', linewidth=2.5, color=colors[0], markersize=8)
+    plt.plot(epochs, val_losses, label="val_loss", marker='s', linewidth=2.5, color=colors[1], markersize=8)
+    plt.title("Training and Validation Loss", fontsize=12, fontweight='bold')
+    plt.xlabel("Epoch", fontsize=11)
+    plt.ylabel("Loss", fontsize=11)
+    plt.legend(fontsize=10)
+    plt.grid(True, alpha=0.3)
 
-    plt.subplot(3, 1, 2)
-    plt.plot(epochs, val_hr, label=f"HR@{k}", marker='o')
-    plt.plot(epochs, val_ndcg, label=f"NDCG@{k}", marker='o')
-    plt.plot(epochs, val_mrr, label="MRR", marker='o')
-    plt.title("Validation Ranking Metrics")
-    plt.xlabel("Epoch")
-    plt.ylabel("Score")
-    plt.legend()
+    # Ranking Metrics
+    plt.subplot(3, 2, 2)
+    plt.plot(epochs, val_hr, label=f"HR@{k}", marker='o', linewidth=2.5, color=colors[2], markersize=8)
+    plt.plot(epochs, val_ndcg, label=f"NDCG@{k}", marker='s', linewidth=2.5, color=colors[3], markersize=8)
+    plt.plot(epochs, val_mrr, label="MRR", marker='^', linewidth=2.5, color=colors[4], markersize=8)
+    plt.title("Validation Ranking Metrics", fontsize=12, fontweight='bold')
+    plt.xlabel("Epoch", fontsize=11)
+    plt.ylabel("Score", fontsize=11)
+    plt.legend(fontsize=10)
+    plt.grid(True, alpha=0.3)
 
-    plt.subplot(3, 1, 3)
-    plt.plot(epochs, val_action_acc, label="Action Accuracy", marker='o')
-    plt.title("Validation Action Accuracy")
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.legend()
+    # Action Accuracy
+    plt.subplot(3, 2, 3)
+    plt.plot(epochs, val_action_acc, label="Action Accuracy", marker='D', linewidth=2.5, color='#FF1493', markersize=8)
+    plt.title("Validation Action Accuracy", fontsize=12, fontweight='bold')
+    plt.xlabel("Epoch", fontsize=11)
+    plt.ylabel("Accuracy", fontsize=11)
+    plt.legend(fontsize=10)
+    plt.grid(True, alpha=0.3)
+    plt.ylim([0, 1])
 
-    plt.tight_layout()
-    plt.savefig(os.path.join(fig_dir, "training_metrics.png"))
-    plt.close()
-
+    # Test Metrics Bar Chart
     if test_metrics:
-        plt.figure(figsize=(6, 4))
+        plt.subplot(3, 2, 4)
         labels = [f"HR@{k}", f"NDCG@{k}", "MRR", "Action Acc"]
         values = [
             test_metrics["hr"],
@@ -60,11 +75,49 @@ def save_training_visualizations(train_losses, val_history, test_metrics, fig_di
             test_metrics["mrr"],
             test_metrics["action_acc"],
         ]
-        plt.bar(labels, values)
-        plt.title("Test Metrics Summary")
-        plt.ylabel("Score")
+        bars = plt.bar(labels, values, color=colors, edgecolor='black', linewidth=1.5)
+        plt.title("Test Metrics Summary", fontsize=12, fontweight='bold')
+        plt.ylabel("Score", fontsize=11)
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{height:.4f}', ha='center', va='bottom', fontsize=9)
+        plt.grid(True, alpha=0.3, axis='y')
+
+    # Confusion Matrix
+    if confusion_data is not None:
+        plt.subplot(3, 2, (5, 6))
+        y_true, y_pred = confusion_data
+        cm = confusion_matrix(y_true, y_pred)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='YlOrRd', cbar=True, 
+                   xticklabels=ACTION_TYPES, yticklabels=ACTION_TYPES)
+        plt.title("Action Type Confusion Matrix", fontsize=12, fontweight='bold')
+        plt.ylabel("True Label", fontsize=11)
+        plt.xlabel("Predicted Label", fontsize=11)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(fig_dir, "training_metrics.png"), dpi=150, bbox_inches='tight')
+    plt.close()
+
+    if test_metrics:
+        plt.figure(figsize=(8, 6))
+        labels = [f"HR@{k}", f"NDCG@{k}", "MRR", "Action Acc"]
+        values = [
+            test_metrics["hr"],
+            test_metrics["ndcg"],
+            test_metrics["mrr"],
+            test_metrics["action_acc"],
+        ]
+        bars = plt.bar(labels, values, color=colors, edgecolor='black', linewidth=1.5, alpha=0.8)
+        plt.title("Test Metrics Summary", fontsize=13, fontweight='bold')
+        plt.ylabel("Score", fontsize=12)
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{height:.4f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+        plt.grid(True, alpha=0.3, axis='y')
         plt.tight_layout()
-        plt.savefig(os.path.join(fig_dir, "test_metrics.png"))
+        plt.savefig(os.path.join(fig_dir, "test_metrics.png"), dpi=150, bbox_inches='tight')
         plt.close()
 
 
@@ -84,6 +137,22 @@ def compute_ranking_metrics(logits, targets, k=10):
     ndcg = torch.where(ranks > 0, 1.0 / torch.log2(ranks + 1.0), torch.zeros_like(ranks)).mean().item()
     mrr = torch.where(ranks > 0, 1.0 / ranks, torch.zeros_like(ranks)).mean().item()
     return hr, ndcg, mrr
+
+
+def compute_class_weights(train_loader, num_classes, device):
+    """Compute class weights from training data to handle imbalance"""
+    class_counts = torch.zeros(num_classes, device=device)
+    
+    for batch in train_loader:
+        targets = batch["target_action"].to(device)
+        class_counts += torch.bincount(targets, minlength=num_classes)
+    
+    # Weight = 1 / frequency
+    class_weights = 1.0 / (class_counts + 1e-8)
+    # Normalize so mean = 1
+    class_weights = class_weights / class_weights.mean()
+    
+    return class_weights
 
 
 def train_one_epoch(model, loader, optimizer, criterion_product, criterion_action, device, action_weight, grad_clip):
@@ -147,6 +216,53 @@ def evaluate(model, loader, device, k=10):
         "mrr": total_mrr / n_batches,
         "action_acc": total_action_correct / max(total_samples, 1),
     }
+
+
+@torch.no_grad()
+def evaluate_with_predictions(model, loader, device, k=10):
+    """Evaluate and return predictions for confusion matrix"""
+    model.eval()
+    total_loss = 0.0
+    total_hr, total_ndcg, total_mrr = 0.0, 0.0, 0.0
+    total_action_correct = 0
+    total_samples = 0
+    
+    all_action_preds = []
+    all_action_true = []
+
+    criterion_product = nn.CrossEntropyLoss()
+    criterion_action = nn.CrossEntropyLoss()
+
+    for batch in loader:
+        batch = {k: v.to(device) for k, v in batch.items()}
+        outputs = model(batch)
+
+        product_loss = criterion_product(outputs["product_logits"], batch["target_product"])
+        action_loss = criterion_action(outputs["action_logits"], batch["target_action"])
+        total_loss += (product_loss + action_loss).item()
+
+        hr, ndcg, mrr = compute_ranking_metrics(outputs["product_logits"], batch["target_product"], k=k)
+        total_hr += hr
+        total_ndcg += ndcg
+        total_mrr += mrr
+
+        action_preds = outputs["action_logits"].argmax(dim=1)
+        total_action_correct += (action_preds == batch["target_action"]).sum().item()
+        total_samples += batch["target_action"].size(0)
+        
+        all_action_preds.extend(action_preds.cpu().numpy())
+        all_action_true.extend(batch["target_action"].cpu().numpy())
+
+    n_batches = max(len(loader), 1)
+    metrics = {
+        "loss": total_loss / n_batches,
+        "hr": total_hr / n_batches,
+        "ndcg": total_ndcg / n_batches,
+        "mrr": total_mrr / n_batches,
+        "action_acc": total_action_correct / max(total_samples, 1),
+    }
+    
+    return metrics, (np.array(all_action_true), np.array(all_action_preds))
 
 
 def train_sequential_model(
@@ -233,7 +349,7 @@ def train_sequential_model(
 
     log_print(f"Loading best model checkpoint from {os.path.join(checkpoint_dir, 'best_sequential_model.pt')}...")
     model.load_state_dict(torch.load(os.path.join(checkpoint_dir, "best_sequential_model.pt")))
-    test_metrics = evaluate(model, test_loader, device, k=k)
+    test_metrics, confusion_data = evaluate_with_predictions(model, test_loader, device, k=k)
     log_print(
         f"Test: loss={test_metrics['loss']:.4f} "
         f"hr@{k}={test_metrics['hr']:.4f} "
@@ -242,5 +358,5 @@ def train_sequential_model(
         f"action_acc={test_metrics['action_acc']:.4f}"
     )
 
-    save_training_visualizations(train_losses, val_history, test_metrics, fig_dir, k)
+    save_training_visualizations(train_losses, val_history, test_metrics, fig_dir, k, confusion_data=confusion_data)
     return test_metrics

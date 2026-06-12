@@ -2,6 +2,7 @@ import json
 import os
 import random
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -70,60 +71,86 @@ def save_data_visualizations(events_df, fig_dir):
     os.makedirs(fig_dir, exist_ok=True)
 
     import matplotlib
-
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    
+    # Set colorful style
+    colors_palette = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2']
+    plt.style.use('seaborn-v0_8-darkgrid')
 
+    # Action Type Distribution
     action_counts = events_df["action_type"].value_counts()
-    plt.figure(figsize=(10, 5))
-    action_counts.plot(kind="bar")
-    plt.title("Action Type Distribution")
-    plt.xlabel("Action Type")
-    plt.ylabel("Count")
+    plt.figure(figsize=(11, 6))
+    bars = plt.bar(action_counts.index, action_counts.values, color=colors_palette, edgecolor='black', linewidth=1.5, alpha=0.85)
+    plt.title("Action Type Distribution", fontsize=13, fontweight='bold')
+    plt.xlabel("Action Type", fontsize=12)
+    plt.ylabel("Count", fontsize=12)
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+                f'{int(height)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+    plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(os.path.join(fig_dir, "action_type_distribution.png"))
+    plt.savefig(os.path.join(fig_dir, "action_type_distribution.png"), dpi=150, bbox_inches='tight')
     plt.close()
 
+    # Top Categories Distribution
     category_counts = events_df["cat_level_1"].value_counts().head(15)
-    plt.figure(figsize=(10, 5))
-    category_counts.plot(kind="bar")
-    plt.title("Top Categories Distribution")
-    plt.xlabel("Category")
-    plt.ylabel("Count")
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(range(len(category_counts)), category_counts.values, color=colors_palette[:len(category_counts)], 
+                     edgecolor='black', linewidth=1.5, alpha=0.85)
+    plt.yticks(range(len(category_counts)), category_counts.index, fontsize=10)
+    plt.title("Top 15 Categories Distribution", fontsize=13, fontweight='bold')
+    plt.xlabel("Count", fontsize=12)
+    for i, bar in enumerate(bars):
+        width = bar.get_width()
+        plt.text(width, bar.get_y() + bar.get_height()/2., f'{int(width)}',
+                ha='left', va='center', fontsize=9, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(os.path.join(fig_dir, "category_distribution.png"))
+    plt.savefig(os.path.join(fig_dir, "category_distribution.png"), dpi=150, bbox_inches='tight')
     plt.close()
 
+    # Price Bucket Distribution
     price_counts = events_df["price_bucket"].value_counts().sort_index()
-    plt.figure(figsize=(8, 4))
-    price_counts.plot(kind="bar")
-    plt.title("Price Bucket Distribution")
-    plt.xlabel("Price Bucket")
-    plt.ylabel("Count")
+    plt.figure(figsize=(9, 5))
+    bars = plt.bar(price_counts.index, price_counts.values, color='#45B7D1', edgecolor='black', linewidth=1.5, alpha=0.85)
+    plt.title("Price Bucket Distribution", fontsize=13, fontweight='bold')
+    plt.xlabel("Price Bucket", fontsize=12)
+    plt.ylabel("Count", fontsize=12)
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+                f'{int(height)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+    plt.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
-    plt.savefig(os.path.join(fig_dir, "price_bucket_distribution.png"))
+    plt.savefig(os.path.join(fig_dir, "price_bucket_distribution.png"), dpi=150, bbox_inches='tight')
     plt.close()
 
+    # Events per User
     events_per_user = events_df.groupby("user_id").size()
-    plt.figure(figsize=(8, 4))
-    plt.hist(events_per_user, bins=30)
-    plt.title("Events per User")
-    plt.xlabel("Event Count")
-    plt.ylabel("Users")
+    plt.figure(figsize=(9, 5))
+    plt.hist(events_per_user, bins=30, color='#FF6B6B', edgecolor='black', linewidth=1, alpha=0.8)
+    plt.title("Events per User Distribution", fontsize=13, fontweight='bold')
+    plt.xlabel("Event Count", fontsize=12)
+    plt.ylabel("Number of Users", fontsize=12)
+    plt.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
-    plt.savefig(os.path.join(fig_dir, "events_per_user.png"))
+    plt.savefig(os.path.join(fig_dir, "events_per_user.png"), dpi=150, bbox_inches='tight')
     plt.close()
 
+    # Session Length Distribution
     session_lengths = events_df.groupby("session_id").size()
-    plt.figure(figsize=(8, 4))
-    plt.hist(session_lengths, bins=20)
-    plt.title("Session Length Distribution")
-    plt.xlabel("Events per Session")
-    plt.ylabel("Sessions")
+    plt.figure(figsize=(9, 5))
+    plt.hist(session_lengths, bins=20, color='#4ECDC4', edgecolor='black', linewidth=1, alpha=0.8)
+    plt.title("Session Length Distribution", fontsize=13, fontweight='bold')
+    plt.xlabel("Events per Session", fontsize=12)
+    plt.ylabel("Number of Sessions", fontsize=12)
+    plt.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
-    plt.savefig(os.path.join(fig_dir, "session_length_distribution.png"))
+    plt.savefig(os.path.join(fig_dir, "session_length_distribution.png"), dpi=150, bbox_inches='tight')
     plt.close()
 
+    # Time Gap Distribution
     events_df_sorted = events_df.sort_values(["user_id", "session_id", "timestamp"])
     time_deltas = (
         events_df_sorted.groupby(["user_id", "session_id"])["timestamp"]
@@ -132,13 +159,14 @@ def save_data_visualizations(events_df, fig_dir):
         .dt.total_seconds()
     )
     if not time_deltas.empty:
-        plt.figure(figsize=(8, 4))
-        plt.hist(time_deltas.clip(upper=3600), bins=30)
-        plt.title("Time Gap Distribution (clipped at 1h)")
-        plt.xlabel("Seconds")
-        plt.ylabel("Count")
+        plt.figure(figsize=(9, 5))
+        plt.hist(time_deltas.clip(upper=3600), bins=30, color='#FFA07A', edgecolor='black', linewidth=1, alpha=0.8)
+        plt.title("Time Gap Distribution (clipped at 1h)", fontsize=13, fontweight='bold')
+        plt.xlabel("Seconds", fontsize=12)
+        plt.ylabel("Count", fontsize=12)
+        plt.grid(True, alpha=0.3, axis='y')
         plt.tight_layout()
-        plt.savefig(os.path.join(fig_dir, "time_gap_distribution.png"))
+        plt.savefig(os.path.join(fig_dir, "time_gap_distribution.png"), dpi=150, bbox_inches='tight')
         plt.close()
 
 
@@ -424,6 +452,61 @@ def simulate_user_sessions(user_profile, product_lookup, pools, config, rng, sta
     return events
 
 
+def load_all_products(data_dir):
+    """Load and merge all product CSV files from data/ folder"""
+    products = []
+    
+    print("📦 Loading all product files...")
+    
+    # Try 1: d:\kttkpm\data (main data directory)
+    main_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+    if os.path.exists(main_data_dir):
+        print(f"  📂 Checking {main_data_dir}")
+        # Load products*.csv files
+        for file in sorted(Path(main_data_dir).glob("products*.csv")):
+            print(f"    ✓ {file.name}")
+            try:
+                df = pd.read_csv(file)
+                if "product_id" not in df.columns and "id" in df.columns:
+                    df = df.rename(columns={"id": "product_id"})
+                products.append(df)
+            except Exception as e:
+                print(f"      ⚠ Error: {e}")
+        
+        # Load product.csv (existing data)
+        product_path = os.path.join(main_data_dir, "product.csv")
+        if os.path.exists(product_path):
+            print(f"    ✓ product.csv")
+            df = pd.read_csv(product_path)
+            if "product_id" not in df.columns and "id" in df.columns:
+                df = df.rename(columns={"id": "product_id"})
+            products.append(df)
+    
+    # Try 2: Fallback to data_dir if provided
+    if not products and os.path.exists(data_dir):
+        print(f"  📂 Fallback: {data_dir}")
+        product_path = os.path.join(data_dir, "product.csv")
+        if os.path.exists(product_path):
+            print(f"    ✓ product.csv")
+            df = pd.read_csv(product_path)
+            if "product_id" not in df.columns and "id" in df.columns:
+                df = df.rename(columns={"id": "product_id"})
+            products.append(df)
+    
+    if not products:
+        raise ValueError(f"❌ No product files found! Checked: {main_data_dir}, {data_dir}")
+    
+    # Merge all products
+    merged = pd.concat(products, ignore_index=True)
+    print(f"\n  Total products before dedup: {len(merged)}")
+    
+    # Remove duplicates by product_id, keep first
+    merged = merged.drop_duplicates(subset=["product_id"], keep="first").reset_index(drop=True)
+    print(f"  Total products after dedup: {len(merged)}\n")
+    
+    return merged
+
+
 def generate_events(product_df, reviews_df, buy_history_df, config, rng):
     profiles = build_user_profiles(reviews_df, buy_history_df, product_df, config, rng)
     pools = build_product_pools(product_df)
@@ -476,11 +559,12 @@ def generate_sequential_dataset(data_dir, output_dir, config=None, seed=42, forc
     rng = np.random.default_rng(seed)
     random.seed(seed)
 
-    product_path = os.path.join(data_dir, "product.csv")
+    # Load all product files (merged)
+    product_df = load_all_products(data_dir)
+    
     reviews_path = os.path.join(data_dir, "reviews.csv")
     buy_history_path = os.path.join(data_dir, "buy_historys.csv")
 
-    product_df = pd.read_csv(product_path)
     reviews_df = pd.read_csv(reviews_path) if os.path.exists(reviews_path) else pd.DataFrame()
     buy_history_df = pd.read_csv(buy_history_path) if os.path.exists(buy_history_path) else pd.DataFrame()
 

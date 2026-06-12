@@ -1,10 +1,10 @@
 {
   "vocab_sizes": {
-    "product": 5284,
+    "product": 5885,
     "action": 9,
-    "category": 2,
-    "price": 4,
-    "seller": 199
+    "category": 22,
+    "price": 6,
+    "seller": 103
   },
   "seq_len": 10,
   "stride": 1,
@@ -19,9 +19,9 @@
     "Search"
   ],
   "split_sizes": {
-    "train": 8335,
-    "val": 2946,
-    "test": 3191
+    "train": 8665,
+    "val": 3034,
+    "test": 3314
   },
   "train_path": "./data/sequential\\sequential_train.npz",
   "val_path": "./data/sequential\\sequential_val.npz",
