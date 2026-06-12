@@ -258,4 +258,23 @@ class Command(BaseCommand):
             Fashion.objects.create(product=prod, size=size, color=color)
             fashion_id_start += 1
 
+        # 4. Seed Users
+        self.stdout.write("Seeding default users...")
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        # Create Superuser (Admin)
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+            self.stdout.write(self.style.SUCCESS("Superuser 'admin' created (password: admin123)."))
+        else:
+            self.stdout.write("Superuser 'admin' already exists.")
+
+        # Create Regular User
+        if not User.objects.filter(username='user').exists():
+            User.objects.create_user('user', 'user@example.com', 'user123')
+            self.stdout.write(self.style.SUCCESS("Regular user 'user' created (password: user123)."))
+        else:
+            self.stdout.write("Regular user 'user' already exists.")
+
         self.stdout.write(self.style.SUCCESS("Database seeding completed successfully!"))

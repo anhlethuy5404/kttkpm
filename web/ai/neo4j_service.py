@@ -34,14 +34,17 @@ class Neo4jService:
         MERGE (u)-[:ADD_CART]->(p)
         MERGE (p)-[:SIMILAR {score: 0.0}]->(p)
         """
-        query_delete = """
+        query_delete_user = """
         MATCH (u:User {id: -1}) DETACH DELETE u
+        """
+        query_delete_product = """
         MATCH (p:Product {id: -1}) DETACH DELETE p
         """
         try:
             with cls._driver.session() as session:
                 session.run(query_create)
-                session.run(query_delete)
+                session.run(query_delete_user)
+                session.run(query_delete_product)
                 cls._initialized = True
                 print("Neo4j schema and relationship types pre-registered successfully.")
         except Exception as e:

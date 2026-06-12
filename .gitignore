@@ -46,7 +46,8 @@ MANIFEST
 
 # 4. Virtual Environments (Local runtimes)
 # ----------------------------------------
-.venv/
+.venv
+.env
 venv/
 ENV/
 env/
