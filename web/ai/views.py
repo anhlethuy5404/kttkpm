@@ -194,7 +194,7 @@ def chat_api(request):
                     context += f"\nSản phẩm {idx+1}: {p.name}\n- Giá: {float(p.price):,.0f} đ\n- Danh mục: {p.category.name if p.category else 'Khác'}\n- Mô tả: {p.description or 'Chưa có mô tả'}\n"
 
                 system_instruction = (
-                    "Bạn là trợ lý AI thông minh của cửa hàng trực tuyến E-Shop SOAD. "
+                    "Bạn là trợ lý AI thông minh của cửa hàng trực tuyến UniqueShop. "
                     "Hãy đóng vai trò người tư vấn bán hàng thân thiện, chuyên nghiệp. "
                     "Dưới đây là danh sách sản phẩm phù hợp nhất với câu hỏi của khách hàng tìm được từ cơ sở dữ liệu:\n"
                     f"{context}\n"
@@ -219,7 +219,7 @@ def chat_api(request):
                 # Add dummy model response to accept instruction
                 contents.append({
                     "role": "model",
-                    "parts": [{"text": "Tôi đã hiểu. Tôi sẽ đóng vai trợ lý tư vấn bán hàng của E-Shop SOAD và trả lời dựa trên ngữ cảnh sản phẩm này."}]
+                    "parts": [{"text": "Tôi đã hiểu. Tôi sẽ đóng vai trợ lý tư vấn bán hàng của UniqueShop và trả lời dựa trên ngữ cảnh sản phẩm này."}]
                 })
 
                 # Append history

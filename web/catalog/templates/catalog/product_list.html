@@ -58,10 +58,10 @@
 
             <div class="sort-box">
                 <select onchange="location = this.value;">
-                    <option value="{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=" {% if not sort %}selected{% endif %}>Latest</option>
-                    <option value="{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                    <option value="{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                    <option value="{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    <option value="?{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=" {% if not sort %}selected{% endif %}>Latest</option>
+                    <option value="?{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="?{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="?{% if active_category %}category={{ active_category.slug }}&{% endif %}{% if q %}q={{ q }}&{% endif %}sort=rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option>
                 </select>
             </div>
         </div>
@@ -101,19 +101,19 @@
             {% if page_obj.has_other_pages %}
                 <div class="pagination">
                     {% if page_obj.has_previous %}
-                        <a href="page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="page-link">&laquo;</a>
+                        <a href="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="page-link">&laquo;</a>
                     {% endif %}
 
                     {% for num in page_obj.paginator.page_range %}
                         {% if page_obj.number == num %}
                             <span class="page-link active">{{ num }}</span>
                         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <a href="page={{ num }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="page-link">{{ num }}</a>
+                            <a href="?page={{ num }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="page-link">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <a href="page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="page-link">&raquo;</a>
+                        <a href="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="page-link">&raquo;</a>
                     {% endif %}
                 </div>
             {% endif %}
