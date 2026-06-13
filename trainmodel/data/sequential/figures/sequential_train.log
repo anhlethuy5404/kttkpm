@@ -1,21 +1,10 @@
-📊 Action class distribution:
-  View: 0 (0.0%) - weight: 1.000 (not in training data)
-  Click: 4125 (47.6%) - weight: 0.263
-  Wishlist: 1659 (19.1%) - weight: 0.653
-  AddCart: 625 (7.2%) - weight: 1.733
-  Buy: 909 (10.5%) - weight: 1.192
-  Review: 365 (4.2%) - weight: 2.967
-  Share: 131 (1.5%) - weight: 8.268
-  Search: 61 (0.7%) - weight: 17.756
-
 Starting training...
-Epoch 1: train_loss=9.4559 val_loss=10.6146 val_hr@10=0.0999 val_ndcg@10=0.0513 val_mrr=0.0366 val_action_acc=0.0079
-Epoch 2: train_loss=8.7668 val_loss=10.7881 val_hr@10=0.1020 val_ndcg@10=0.0532 val_mrr=0.0383 val_action_acc=0.0465
-Epoch 3: train_loss=8.6787 val_loss=10.9144 val_hr@10=0.0980 val_ndcg@10=0.0530 val_mrr=0.0391 val_action_acc=0.1925
-Epoch 4: train_loss=8.6187 val_loss=10.9271 val_hr@10=0.1010 val_ndcg@10=0.0527 val_mrr=0.0380 val_action_acc=0.1750
-Epoch 5: train_loss=8.4679 val_loss=10.9336 val_hr@10=0.1019 val_ndcg@10=0.0528 val_mrr=0.0378 val_action_acc=0.1648
-Early stopping at epoch 5
+Epoch 1: train_loss=9.2625 val_loss=10.0696 val_hr@10=0.1021 val_ndcg@10=0.0529 val_mrr=0.0378 val_action_acc=0.4647
+Epoch 2: train_loss=8.5105 val_loss=10.2897 val_hr@10=0.0980 val_ndcg@10=0.0517 val_mrr=0.0375 val_action_acc=0.4647
+Epoch 3: train_loss=8.4096 val_loss=10.4626 val_hr@10=0.1020 val_ndcg@10=0.0533 val_mrr=0.0384 val_action_acc=0.4647
+Epoch 4: train_loss=8.3687 val_loss=10.4988 val_hr@10=0.0980 val_ndcg@10=0.0525 val_mrr=0.0385 val_action_acc=0.4647
+Early stopping at epoch 4
 
 Training metrics log saved to ./data/sequential\figures\sequential_training_log.csv
 Loading best model checkpoint from checkpoints\best_sequential_model.pt...
-Test: loss=10.8088 hr@10=0.1004 ndcg@10=0.0544 mrr=0.0402 action_acc=0.0594
+Test: loss=10.1289 hr@10=0.0971 ndcg@10=0.0540 mrr=0.0407 action_acc=0.4415

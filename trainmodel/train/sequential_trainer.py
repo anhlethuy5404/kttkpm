@@ -139,22 +139,6 @@ def compute_ranking_metrics(logits, targets, k=10):
     return hr, ndcg, mrr
 
 
-def compute_class_weights(train_loader, num_classes, device):
-    """Compute class weights from training data to handle imbalance"""
-    class_counts = torch.zeros(num_classes, device=device)
-    
-    for batch in train_loader:
-        targets = batch["target_action"].to(device)
-        class_counts += torch.bincount(targets, minlength=num_classes)
-    
-    # Weight = 1 / frequency
-    class_weights = 1.0 / (class_counts + 1e-8)
-    # Normalize so mean = 1
-    class_weights = class_weights / class_weights.mean()
-    
-    return class_weights
-
-
 def train_one_epoch(model, loader, optimizer, criterion_product, criterion_action, device, action_weight, grad_clip):
     model.train()
     total_loss = 0.0
