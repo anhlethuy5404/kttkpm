@@ -1,5 +1,5 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Quản lý sản phẩm - E-Shop Storefront{% endblock %}
+{% block title %}Quản lý sản phẩm - Unique-Shop Storefront{% endblock %}
 
 {% block content %}
 <h2 style="font-family: var(--font-signifier); font-size: 2.2rem; font-weight: 400; margin-bottom: 10px;">Quản Lý Sản Phẩm</h2>
@@ -80,19 +80,19 @@
     {% if page_obj.has_other_pages %}
         <div class="pagination">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-link">&laquo;</a>
+                <a href="VNDpage={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-link">&laquo;</a>
             {% endif %}
 
             {% for num in page_obj.paginator.page_range %}
                 {% if page_obj.number == num %}
                     <span class="page-link active">{{ num }}</span>
                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}" class="page-link">{{ num }}</a>
+                    <a href="VNDpage={{ num }}{% if q %}&q={{ q }}{% endif %}" class="page-link">{{ num }}</a>
                 {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-link">&raquo;</a>
+                <a href="VNDpage={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-link">&raquo;</a>
             {% endif %}
         </div>
     {% endif %}

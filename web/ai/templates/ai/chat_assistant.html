@@ -1,5 +1,5 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Trợ Lý AI - E-Shop Storefront{% endblock %}
+{% block title %}AI Shopping Assistant - UniqueShop{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -45,7 +45,7 @@
         border-bottom-left-radius: 2px;
     }
     .chat-bubble.user {
-        background: var(--accent-gradient);
+        background: var(--accent-gradient, linear-gradient(135deg, #F2B949 0%, #A67F32 100%));
         color: white;
         align-self: flex-end;
         border-bottom-right-radius: 2px;
@@ -102,9 +102,9 @@
     }
     .chat-input {
         flex: 1;
-        background: var(--bg-primary);
+        background: var(--color-pure-white, #ffffff);
         border: 1px solid var(--border-color);
-        color: var(--text-primary);
+        color: var(--color-ink, #111827);
         padding: 12px 15px;
         border-radius: 8px;
         outline: none;
@@ -116,29 +116,28 @@
 {% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom: 25px; text-align: center; font-weight: 800;">Trợ Lý Tư Vấn Sản Phẩm AI</h2>
+<h2 style="margin-bottom: 25px; text-align: center; font-weight: 800;">AI Shopping Assistant</h2>
 
 <div class="chat-wrapper">
     <div class="chat-header">
         <div style="display:flex; align-items:center; gap:10px;">
             <div style="width:10px; height:10px; border-radius:50%; background:var(--success-color); box-shadow:0 0 8px var(--success-color);"></div>
-            <strong>Trợ Lý AI Shop</strong>
+            <strong>UniqueShop AI Assistant</strong>
         </div>
-        <span style="font-size:0.8rem; color:var(--text-secondary);">Model: Sequence LSTM + Graph V1.2</span>
+        <span style="font-size:0.8rem; color:var(--text-secondary);">Premium Shopping Intelligence</span>
     </div>
     
     <div class="chat-messages" id="chat-messages">
         <!-- Welcoming bubble -->
         <div class="chat-bubble assistant">
-            Chào bạn! Tôi là Trợ lý AI. Tôi có thể tư vấn sản phẩm sách, đồ điện tử và thời trang dựa trên nhu cầu của bạn.
-            Bạn hãy thử gõ <strong>"sách nghệ thuật"</strong>, <strong>"thiết bị điện tử"</strong> hoặc <strong>"thời trang nam"</strong> để tôi tìm kiếm nhé!
+            Welcome to UniqueShop! I&apos;m your AI shopping assistant. I can help you discover the perfect luxury books, premium gadgets, and exclusive fashion. Try asking for <strong>"art books"</strong>, <strong>"tech gadgets"</strong>, or <strong>"designer fashion"</strong>!
         </div>
     </div>
     
     <div class="chat-footer">
         <form class="chat-form" id="chat-form">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Nhập câu hỏi của bạn ở đây..." autocomplete="off" required>
-            <button type="submit" class="btn-primary" style="padding:0 25px; font-weight:600;">Gửi</button>
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything about our products..." autocomplete="off" required>
+            <button type="submit" class="btn-primary" style="padding:0 25px; font-weight:600;">Send</button>
         </form>
     </div>
 </div>
@@ -175,7 +174,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         })
         .catch(err => {
-            appendBubble('Đã xảy ra lỗi kết nối với máy chủ AI. Vui lòng thử lại sau!', 'assistant');
+            appendBubble('Connection error. Please try again later.', 'assistant');
             chatMessages.scrollTop = chatMessages.scrollHeight;
         });
     });
@@ -193,7 +192,7 @@
                 const card = document.createElement('div');
                 card.className = 'chat-product-card';
                 card.innerHTML = `
-                    <img src="${p.image_url || 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=150'}" alt="${p.name}">
+                    <img src="${p.image_url || 'https://images.unsplash.com/photo-1549298916-b41d501d3772VNDw=150'}" alt="${p.name}">
                     <div class="chat-product-card-body">
                         <div class="chat-product-title">
                             <a href="/products/${p.product_id}/" style="color:var(--text-primary); font-weight:600;">${p.name}</a>

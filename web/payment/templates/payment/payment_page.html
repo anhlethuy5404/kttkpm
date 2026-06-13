@@ -1,22 +1,22 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Thanh Toán Đơn Hàng #{{ order.id }} - E-Shop Storefront{% endblock %}
+{% block title %}Payment for Order #{{ order.id }} - UniqueShop{% endblock %}
 
 {% block content %}
 <div class="form-card" style="max-width: 500px;">
-    <h2>Thanh Toán Đơn Hàng #{{ order.id }}</h2>
+    <h2>Process Payment - Order #{{ order.id }}</h2>
     
     <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:8px; padding:20px; margin-bottom:25px; font-size:0.95rem;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="color:var(--text-secondary);">Mã đơn hàng:</span>
+            <span style="color:var(--text-secondary);">Order ID:</span>
             <strong>#{{ order.id }}</strong>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="color:var(--text-secondary);">Khách hàng:</span>
+            <span style="color:var(--text-secondary);">Customer:</span>
             <strong>{{ order.user.username }}</strong>
         </div>
         <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border-color); padding-top:10px; font-size:1.1rem; font-weight:700;">
-            <span>Số tiền cần thanh toán:</span>
-            <span style="color:var(--accent-color);">{{ order.total_price|floatformat:"0" }} đ</span>
+            <span>Amount Due:</span>
+            <span style="color:var(--accent-color);">${{ order.total_price|floatformat:"2" }}</span>
         </div>
     </div>
 
@@ -24,16 +24,16 @@
         {% csrf_token %}
         <div style="display:flex; flex-direction:column; gap:15px;">
             <button type="submit" name="action" value="success" class="btn-primary" style="padding:14px; font-weight:700;">
-                Giả lập Thanh Toán Thành Công
+                Simulate Successful Payment
             </button>
             <button type="submit" name="action" value="failed" class="btn-secondary" style="padding:14px; font-weight:700; color:var(--danger-color); border-color:rgba(239, 68, 68, 0.3);">
-                Giả lập Thanh Toán Thất Bại
+                Simulate Failed Payment
             </button>
         </div>
     </form>
     
     <div style="text-align:center; margin-top:20px;">
-        <a href="{% url 'order_detail' order.id %}" style="font-size:0.9rem; color:var(--text-secondary); text-decoration:underline;">Quay lại chi tiết đơn hàng</a>
+        <a href="{% url 'order_detail' order.id %}" style="font-size:0.9rem; color:var(--text-secondary); text-decoration:underline;">Back to Order Details</a>
     </div>
 </div>
 {% endblock %}

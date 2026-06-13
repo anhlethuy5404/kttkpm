@@ -10,7 +10,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -51,6 +51,8 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    volumes:
+      - .:/app
     depends_on:
       - db
     restart: always
@@ -73,6 +75,8 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    volumes:
+      - .:/app
     depends_on:
       - user-service
     restart: always
@@ -95,6 +99,8 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    volumes:
+      - .:/app
     depends_on:
       - user-service
     restart: always
@@ -117,6 +123,8 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    volumes:
+      - .:/app
     depends_on:
       - user-service
     restart: always
@@ -139,6 +147,8 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    volumes:
+      - .:/app
     depends_on:
       - user-service
     restart: always
@@ -161,6 +171,8 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
+    volumes:
+      - .:/app
     depends_on:
       - user-service
     restart: always
@@ -184,6 +196,8 @@ services:
       - NEO4J_PASSWORD=password123
       - KMP_DUPLICATE_LIB_OK=TRUE
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - .:/app
     depends_on:
       - user-service
       - neo4j
@@ -206,6 +220,20 @@ services:
       - shipping-service
       - ai-service
     restart: always
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    depends_on:
+      - product-service
 
 volumes:
   postgres_data:

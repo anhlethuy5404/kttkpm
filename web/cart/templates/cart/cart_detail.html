@@ -1,19 +1,19 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Giỏ Hàng - E-Shop Storefront{% endblock %}
+{% block title %}Shopping Cart - UniqueShop Premium Store{% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom:30px; font-weight:800;">Giỏ Hàng Của Bạn</h2>
+<h2 style="margin-bottom:30px; font-weight:800;">Your Shopping Cart</h2>
 
 {% if cart.items.exists %}
     <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:20px; overflow-x:auto;">
         <table class="cart-table">
             <thead>
                 <tr>
-                    <th>Sản phẩm</th>
-                    <th>Giá bán</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                    <th>Thao tác</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,15 +28,15 @@
                                 {% endif %}
                                 <div>
                                     <a href="{% url 'product_detail' item.product_id %}" class="cart-item-name">{{ item.product.name }}</a>
-                                    <div class="cart-item-meta">Mã sản phẩm: #{{ item.product_id }}</div>
+                                    <div class="cart-item-meta">Product ID: #{{ item.product_id }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ item.product.price|floatformat:"0" }} đ</td>
+                        <td>${{ item.product.price|floatformat:"2" }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td style="font-weight:700;">{{ item.subtotal|floatformat:"0" }} đ</td>
+                        <td style="font-weight:700;">${{ item.subtotal|floatformat:"2" }}</td>
                         <td>
-                            <a href="{% url 'cart_remove' item.product_id %}" style="color:var(--danger-color); font-weight:600;">Xóa</a>
+                            <a href="{% url 'cart_remove' item.product_id %}" style="color:var(--danger-color); font-weight:600;">Remove</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -45,16 +45,16 @@
 
         <div class="cart-summary">
             <div>
-                <span class="cart-total-label">Tổng thanh toán:</span>
-                <span class="cart-total-value">{{ cart.total_price|floatformat:"0" }} đ</span>
+                <span class="cart-total-label">Total:</span>
+                <span class="cart-total-value">${{ cart.total_price|floatformat:"2" }}</span>
             </div>
-            <a href="{% url 'checkout' %}" class="btn-primary" style="padding:12px 30px;">Tiến Hành Đặt Hàng</a>
+            <a href="{% url 'checkout' %}" class="btn-primary" style="padding:12px 30px;">Proceed to Checkout</a>
         </div>
     </div>
 {% else %}
     <div style="text-align:center; padding:60px 0; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--border-radius);">
-        <h3 style="margin-bottom:15px; color:var(--text-secondary);">Giỏ hàng của bạn đang trống!</h3>
-        <a href="{% url 'store' %}" class="btn-primary">Quay lại mua sắm</a>
+        <h3 style="margin-bottom:15px; color:var(--text-secondary);">Your cart is empty!</h3>
+        <a href="{% url 'store' %}" class="btn-primary">Continue Shopping</a>
     </div>
 {% endif %}
 {% endblock %}

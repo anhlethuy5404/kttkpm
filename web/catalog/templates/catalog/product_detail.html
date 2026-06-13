@@ -1,5 +1,5 @@
 {% extends 'catalog/base.html' %}
-{% block title %}{{ product.name }} - E-Shop Storefront{% endblock %}
+{% block title %}{{ product.name }} - UniqueShop Premium Store{% endblock %}
 
 {% block content %}
 <div class="product-detail-layout">
@@ -106,7 +106,7 @@
 <!-- Recommendations section -->
 {% if recommendations %}
     <div style="margin-top: 60px;">
-        <h3 style="margin-bottom:20px; font-weight:800;">Sản phẩm liên quan</h3>
+        <h3 style="margin-bottom:20px; font-weight:800;">Discover Similar Treasures</h3>
         <div class="product-grid">
             {% for prod in recommendations %}
                 <div class="product-card">

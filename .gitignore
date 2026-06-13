@@ -75,3 +75,5 @@ web/local_settings.py
 Thumbs.db
 .gemini/
 .system_generated/
+.cache/
+*.pyc

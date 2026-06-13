@@ -1,10 +1,10 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}E-Commerce Microservices Storefront{% endblock %}</title>
+    <title>{% block title %}UniqueShop - Premium Shopping Experience{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'catalog/css/style.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
@@ -12,23 +12,23 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="{% url 'home' %}" class="logo">E-SHOP SOAD</a>
+            <a href="{% url 'home' %}" class="logo">UniqueShop</a>
             
             <ul class="nav-links">
-                <li><a href="{% url 'store' %}">Cửa Hàng</a></li>
+                <li><a href="{% url 'store' %}">Shop</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'recommendations' %}">Gợi Ý AI</a></li>
-                    <li><a href="{% url 'order_history' %}">Đơn Hàng</a></li>
-                    <li><a href="{% url 'cart' %}" class="nav-link">Giỏ Hàng <span style="background:#ef4444; color:white; border-radius:50%; padding:2px 7px; font-size:0.75rem; font-weight:700;">{{ user.cart.items_count|default:0 }}</span></a></li>
+                    <li><a href="{% url 'recommendations' %}">AI Recommendation</a></li>
+                    <li><a href="{% url 'order_history' %}">Order</a></li>
+                    <li><a href="{% url 'cart' %}" class="nav-link">Cart<span style="background:#ef4444; color:white; border-radius:50%; padding:2px 7px; font-size:0.75rem; font-weight:700;">{{ user.cart.items_count|default:0 }}</span></a></li>
                     {% if user.role == 'admin' or user.role == 'staff' %}
-                        <li><a href="{% url 'admin_dashboard' %}" style="font-weight:600; color:var(--color-rust);">Quản Trị</a></li>
+                        <li><a href="{% url 'admin_dashboard' %}" style="font-weight:600; color:var(--color-rust);">Management‹</a></li>
                         <li><span class="badge staff" style="margin: 0; background:rgba(139, 92, 246, 0.2); color:#a78bfa; font-size:0.75rem;">{{ user.get_role_display }}</span></li>
                     {% endif %}
-                    <li>Xin chào, <strong>{{ user.username }}</strong></li>
-                    <li><a href="{% url 'logout' %}" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; font-weight: 500;">Đăng xuất</a></li>
+                    <li>Hello, <strong>{{ user.username }}</strong></li>
+                    <li><a href="{% url 'logout' %}" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; font-weight: 500;">Logout</a></li>
                 {% else %}
-                    <li><a href="{% url 'login' %}">Đăng nhập</a></li>
-                    <li><a href="{% url 'register' %}" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem; font-weight: 500;">Đăng ký</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem; font-weight: 500;">Sign up</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -53,7 +53,7 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2026 E-Shop Microservices. Bài tập môn học SoAD. GVHD: Trần Đình Quế.</p>
+            <p>&copy; 2026 UniqueShop. All rights reserved. Premium Curated Shopping Platform.</p>
         </div>
     </footer>
 
@@ -67,7 +67,7 @@
             <div class="chat-widget-header">
                 <div class="chat-widget-title">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--success-color); box-shadow: 0 0 8px var(--success-color);"></div>
-                    <strong>Trợ Lý AI Shop</strong>
+                    <strong>UniqueShop AI Assistant</strong>
                 </div>
                 <button class="chat-widget-close" onclick="toggleChatPopup()">&times;</button>
             </div>
@@ -75,14 +75,13 @@
             <div class="chat-widget-messages" id="chat-widget-messages">
                 <!-- Welcoming bubble -->
                 <div class="chat-widget-bubble assistant">
-                    Chào bạn! Tôi là Trợ lý AI. Tôi có thể tư vấn sản phẩm sách, đồ điện tử và thời trang dựa trên nhu cầu của bạn.
-                    Bạn hãy thử gõ <strong>"sách nghệ thuật"</strong>, <strong>"thiết bị điện tử"</strong> hoặc <strong>"thời trang nam"</strong> để tôi tìm kiếm nhé!
+                    Welcome to UniqueShop! I'm your AI Shopping Assistant. I can help you discover the perfect products from our curated collections. Try asking for <strong>"luxury books"</strong>, <strong>"latest gadgets"</strong>, or <strong>"premium fashion"</strong>!
                 </div>
             </div>
             
             <div class="chat-widget-footer">
                 <form class="chat-widget-form" id="chat-widget-form">
-                    <input type="text" id="chat-widget-input" class="chat-widget-input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" required>
+                    <input type="text" id="chat-widget-input" class="chat-widget-input" placeholder="Nhập câu hỏi của bạn" autocomplete="off" required style="color: var(--color-ink, #000); background: var(--color-pure-white, #fff);">
                     <button type="submit" class="btn-primary" style="padding: 0 15px; font-size: 0.85rem; font-weight: 600; border-radius: 6px;">Gửi</button>
                 </form>
             </div>
@@ -161,6 +160,11 @@
                 const bubble = document.createElement('div');
                 bubble.className = `chat-widget-bubble ${sender}`;
                 bubble.innerHTML = text;
+                
+                if (sender === 'user') {
+                    bubble.style.background = 'linear-gradient(135deg, #F2B949 0%, #A67F32 100%)';
+                    bubble.style.color = '#ffffff';
+                }
 
                 if (products && products.length > 0) {
                     const grid = document.createElement('div');
@@ -180,7 +184,7 @@
                         card.style.fontSize = '0.7rem';
                         
                         card.innerHTML = `
-                            <img src="${p.image_url || 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100'}" alt="${p.name}" style="width: 100%; height: 60px; object-fit: cover;">
+                            <img src="${p.image_url || 'https://images.unsplash.com/photo-1549298916-b41d501d3772VNDw=100'}" alt="${p.name}" style="width: 100%; height: 60px; object-fit: cover;">
                             <div style="padding: 4px; display: flex; flex-direction: column; flex: 1;">
                                 <div style="font-weight: 600; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4em; line-height: 1.2;">
                                     <a href="/products/${p.product_id}/" style="color:var(--text-primary); text-decoration: none;">${p.name}</a>

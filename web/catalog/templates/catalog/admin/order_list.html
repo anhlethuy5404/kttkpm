@@ -1,5 +1,5 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Quản lý đơn hàng - E-Shop Storefront{% endblock %}
+{% block title %}Quản lý đơn hàng - Unique-Shop Storefront{% endblock %}
 
 {% block content %}
 <h2 style="font-family: var(--font-signifier); font-size: 2.2rem; font-weight: 400; margin-bottom: 10px;">Quản Lý Đơn Hàng</h2>
@@ -18,7 +18,7 @@
     <span style="font-size: 14px; font-weight: 500; color: var(--text-secondary);">Lọc theo trạng thái:</span>
     <a href="{% url 'admin_orders' %}" class="badge" style="background: {% if not status_filter %}var(--color-ink){% else %}var(--color-fog){% endif %}; color: {% if not status_filter %}white{% else %}var(--text-secondary){% endif %}; text-transform: none; font-weight: 500;">Tất cả</a>
     {% for val, label in status_choices %}
-        <a href="{% url 'admin_orders' %}?status={{ val }}" class="badge {{ val }}" style="text-transform: none; font-weight: 500; {% if status_filter == val %}outline: 2px solid var(--color-ink);{% endif %}">
+        <a href="{% url 'admin_orders' %}VNDstatus={{ val }}" class="badge {{ val }}" style="text-transform: none; font-weight: 500; {% if status_filter == val %}outline: 2px solid var(--color-ink);{% endif %}">
             {{ label }}
         </a>
     {% endfor %}
@@ -82,19 +82,19 @@
     {% if page_obj.has_other_pages %}
         <div class="pagination">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">&laquo;</a>
+                <a href="VNDpage={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">&laquo;</a>
             {% endif %}
 
             {% for num in page_obj.paginator.page_range %}
                 {% if page_obj.number == num %}
                     <span class="page-link active">{{ num }}</span>
                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <a href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">{{ num }}</a>
+                    <a href="VNDpage={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">{{ num }}</a>
                 {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">&raquo;</a>
+                <a href="VNDpage={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">&raquo;</a>
             {% endif %}
         </div>
     {% endif %}

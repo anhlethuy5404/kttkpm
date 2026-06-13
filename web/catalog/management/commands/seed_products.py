@@ -1,5 +1,6 @@
 import os
 import csv
+import glob
 import random
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -7,19 +8,29 @@ from django.utils.text import slugify
 from catalog.models import Category, Product, Book, Electronics, Fashion
 
 class Command(BaseCommand):
-    help = 'Seeds catalog products (Books from product.csv and real Electronics from laptop-may-vi-tinh-linh-kien)'
+    help = 'Seeds catalog products from all CSV files with dynamic column mapping'
+
+    def get_val(self, row, keys, default=''):
+        """Helper to flexibly extract values from CSV rows with varying column names"""
+        for k in keys:
+            for row_key in row.keys():
+                if row_key and str(row_key).strip().lower() == k.lower():
+                    val = row[row_key]
+                    if val and str(val).strip() != '<PAD>':
+                        return val
+        return default
 
     def handle(self, *args, **options):
         # Paths
-        csv_path = os.path.join(settings.BASE_DIR, '..', 'data', 'product.csv')
-        if not os.path.exists(csv_path):
-            csv_path = os.path.join(settings.BASE_DIR, 'data', 'product.csv')
+        data_dir = os.path.join(settings.BASE_DIR, '..', 'data')
+        if not os.path.exists(data_dir):
+            data_dir = os.path.join(settings.BASE_DIR, 'data')
             
-        if not os.path.exists(csv_path):
-            self.stdout.write(self.style.ERROR(f"CSV file not found at {csv_path}"))
+        if not os.path.exists(data_dir):
+            self.stdout.write(self.style.ERROR(f"Data directory not found at {data_dir}"))
             return
 
-        self.stdout.write(self.style.WARNING(f"Reading CSV from {csv_path}..."))
+        self.stdout.write(self.style.WARNING(f"Reading all CSV files from {data_dir}..."))
 
         # Clear existing data to avoid conflicts
         Book.objects.all().delete()
@@ -32,102 +43,8 @@ class Command(BaseCommand):
 
         products_to_create = []
         books_to_create = []
+        elec_details_to_create = []
         seen_ids = set()
-        cat_counts = {}
-
-        # 1. Seed Books from product.csv with category hierarchy
-        with open(csv_path, 'r', encoding='utf-8-sig') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                try:
-                    product_id = int(row['id'])
-                    if product_id in seen_ids:
-                        continue
-                    seen_ids.add(product_id)
-
-                    # Extract category chain hierarchically
-                    cat_levels = []
-                    for col in ['cat_level_1', 'cat_level_2', 'cat_level_3', 'cat_level_4', 'cat_level_5']:
-                        val = row.get(col, '')
-                        if val and val != '<PAD>':
-                            cat_levels.append(val.replace('-', ' ').strip().title())
-                    
-                    if not cat_levels:
-                        cat_levels = ['Chưa Phân Loại']
-
-                    parent_cat = None
-                    for cat_name in cat_levels:
-                        slug = slugify(cat_name)
-                        cat, _ = Category.objects.get_or_create(
-                            name=cat_name, 
-                            slug=slug, 
-                            parent=parent_cat
-                        )
-                        parent_cat = cat
-                    
-                    category = parent_cat
-                    cat_id = category.id
-                    cat_counts[cat_id] = cat_counts.get(cat_id, 0) + 1
-                    if cat_counts[cat_id] > 50:
-                        continue
-
-                    # Parse fields safely
-                    price = float(row.get('price', 0))
-                    rating = float(row.get('rating_average', 0))
-                    image_url = row.get('image_base_url', '').split(',')[0].strip()
-                    desc = row.get('description', '')
-
-                    prod = Product(
-                        id=product_id,
-                        name=row.get('name', '')[:255],
-                        price=price,
-                        stock=random.randint(5, 50),
-                        description=desc,
-                        image_url=image_url,
-                        rating_average=rating,
-                        category=category
-                    )
-                    products_to_create.append(prod)
-
-                    # Parse author/publisher details from description
-                    author = "Đang cập nhật"
-                    publisher = "NXB Tổng hợp"
-                    if 'Tác giả' in desc:
-                        try:
-                            part = desc.split('Tác giả')[1]
-                            part = part.replace(':', '').strip()
-                            author = part.split('\n')[0].split(',')[0].split('.')[0].strip()
-                        except:
-                            pass
-                    if 'Nhà xuất bản' in desc:
-                        try:
-                            part = desc.split('Nhà xuất bản')[1]
-                            part = part.replace(':', '').strip()
-                            publisher = part.split('\n')[0].split(',')[0].strip()
-                        except:
-                            pass
-
-                    book = Book(
-                        product=prod,
-                        author=author[:255] if author else "Đang cập nhật",
-                        publisher=publisher[:255] if publisher else "NXB Tổng hợp",
-                        isbn=f"9786043{random.randint(100000, 999999)}"
-                    )
-                    books_to_create.append(book)
-
-                except Exception:
-                    continue
-
-        self.stdout.write(f"Parsed {len(products_to_create)} books from CSV. Inserting...")
-        Product.objects.bulk_create(products_to_create)
-        Book.objects.bulk_create(books_to_create)
-        self.stdout.write(f"Successfully imported {Product.objects.count()} books into the catalog.")
-
-        # 2. Seed Real Electronics from laptop-may-vi-tinh-linh-kien with category hierarchy
-        self.stdout.write("Seeding real Electronics from laptop-may-vi-tinh-linh-kien...")
-        electronics_dir = os.path.join(settings.BASE_DIR, '..', 'data', 'laptop-may-vi-tinh-linh-kien')
-        if not os.path.exists(electronics_dir):
-            electronics_dir = os.path.join(settings.BASE_DIR, 'data', 'laptop-may-vi-tinh-linh-kien')
 
         BRANDS = ["Asus", "Dell", "HP", "Lenovo", "Logitech", "Kingston", "Gigabyte", "Intel", "AMD", "Sony", "Apple", "Samsung", "Corsair", "Sandisk", "Crucial", "Western Digital", "WD", "TP-Link", "Xiaomi", "Canon", "Brother", "Epson"]
         
@@ -155,82 +72,139 @@ class Command(BaseCommand):
                 return mapping[folder_name]
             return folder_name.replace('-', ' ').strip().title()
 
-        if os.path.exists(electronics_dir):
-            elec_products_to_create = []
-            elec_details_to_create = []
+        # Only process files starting with 'product' and ending with '.csv' in the data directory
+        csv_files = glob.glob(os.path.join(data_dir, 'product*.csv'))
+        for csv_path in csv_files:
+            self.stdout.write(f"Processing {csv_path}...")
             
-            for root, dirs, files in os.walk(electronics_dir):
-                for file in files:
-                    if file == 'product.csv':
-                        csv_file_path = os.path.join(root, file)
+            is_electronics = 'laptop-may-vi-tinh-linh-kien' in csv_path
+
+            with open(csv_path, 'r', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    try:
+                        # 1. Parse ID
+                        product_id_str = self.get_val(row, ['id', 'product_id', 'item_id', 'sku', 'mã'])
+                        if not product_id_str:
+                            continue
+                        product_id = int(float(product_id_str))
                         
-                        # Build folder hierarchy categories
-                        rel_path = os.path.relpath(root, electronics_dir)
-                        path_parts = rel_path.split(os.sep)
+                        if product_id in seen_ids:
+                            continue
                         
+                        # 2. Parse Category
                         parent_cat = None
-                        for part in path_parts:
-                            if part == '.' or not part:
-                                continue
-                            cat_name = clean_category_name(part)
-                            slug = slugify(cat_name)
-                            cat, _ = Category.objects.get_or_create(
-                                name=cat_name,
-                                slug=slug,
-                                parent=parent_cat
-                            )
-                            parent_cat = cat
-                            
-                        category = parent_cat
-                        
-                        with open(csv_file_path, 'r', encoding='utf-8-sig') as f_elec:
-                            reader_elec = csv.DictReader(f_elec)
-                            for row_elec in reader_elec:
-                                try:
-                                    product_id = int(row_elec['id'])
-                                    if product_id in seen_ids:
-                                        continue
-                                    
-                                    cat_id = category.id
-                                    cat_counts[cat_id] = cat_counts.get(cat_id, 0) + 1
-                                    if cat_counts[cat_id] > 50:
-                                        continue
-                                        
-                                    seen_ids.add(product_id)
-                                    
-                                    price = float(row_elec.get('price') or 0)
-                                    rating = float(row_elec.get('rating_average') or 0)
-                                    image_url = (row_elec.get('image_base_url') or '').split(',')[0].strip()
-                                    desc = row_elec.get('description') or row_elec.get('short_description') or ''
-                                    name = row_elec.get('name', '')[:255]
-                                    
-                                    prod_elec = Product(
-                                        id=product_id,
-                                        name=name,
-                                        price=price,
-                                        stock=random.randint(5, 30),
-                                        description=desc,
-                                        image_url=image_url,
-                                        rating_average=rating,
-                                        category=category
-                                    )
-                                    elec_products_to_create.append(prod_elec)
-                                    
-                                    brand = parse_brand(name)
-                                    elec_detail = Electronics(
-                                        product=prod_elec,
-                                        brand=brand,
-                                        warranty=random.choice([12, 24, 36])
-                                    )
-                                    elec_details_to_create.append(elec_detail)
-                                    
-                                except Exception:
+                        if is_electronics:
+                            # Use folder structure for electronics
+                            rel_path = os.path.relpath(os.path.dirname(csv_path), os.path.join(data_dir, 'laptop-may-vi-tinh-linh-kien'))
+                            path_parts = rel_path.split(os.sep)
+                            for part in path_parts:
+                                if part == '.' or not part:
                                     continue
-            
-            self.stdout.write(f"Parsed {len(elec_products_to_create)} Electronics items. Inserting...")
-            Product.objects.bulk_create(elec_products_to_create)
-            Electronics.objects.bulk_create(elec_details_to_create)
-            self.stdout.write(f"Successfully imported {len(elec_products_to_create)} Electronics into the catalog.")
+                                cat_name = clean_category_name(part)
+                                slug = slugify(cat_name)
+                                cat, _ = Category.objects.get_or_create(
+                                    name=cat_name, slug=slug, parent=parent_cat
+                                )
+                                parent_cat = cat
+                        else:
+                            # Books or general products: use row columns
+                            cat_levels = []
+                            for col in ['cat_level_1', 'cat_level_2', 'cat_level_3', 'cat_level_4', 'cat_level_5', 'category', 'danh_muc']:
+                                val = self.get_val(row, [col])
+                                if val:
+                                    cat_levels.append(str(val).replace('-', ' ').strip().title())
+                                    
+                            if not cat_levels:
+                                cat_levels = ['Chưa Phân Loại']
+
+                            for cat_name in cat_levels:
+                                slug = slugify(cat_name)
+                                cat, _ = Category.objects.get_or_create(
+                                    name=cat_name, slug=slug, parent=parent_cat
+                                )
+                                parent_cat = cat
+
+                        category = parent_cat
+                        cat_id = category.id if category else None
+
+                        seen_ids.add(product_id)
+
+                        # 3. Parse Core Fields
+                        name = self.get_val(row, ['name', 'title', 'product_name', 'tên'], f"Sản phẩm {product_id}")[:255]
+                        
+                        price_str = self.get_val(row, ['price', 'gia', 'cost', 'giá', 'sale_price'], '0')
+                        try:
+                            price = float(str(price_str).replace(',', '').replace('đ', '').replace(' ', '').strip())
+                        except ValueError:
+                            price = 0.0
+                            
+                        rating_str = self.get_val(row, ['rating_average', 'rating', 'stars', 'đánh_giá'], '0')
+                        try:
+                            rating = float(rating_str)
+                        except ValueError:
+                            rating = 0.0
+
+                        image_url = self.get_val(row, ['image_base_url', 'image_url', 'image', 'img', 'thumbnail_url', 'ảnh'], '')
+                        image_url = str(image_url).split(',')[0].strip() if image_url else ''
+                        
+                        desc = self.get_val(row, ['description', 'short_description', 'desc', 'chi_tiet', 'mô_tả', 'content'], '')
+
+                        prod = Product(
+                            id=product_id,
+                            name=name,
+                            price=price,
+                            stock=random.randint(5, 50),
+                            description=desc,
+                            image_url=image_url,
+                            rating_average=rating,
+                            category=category
+                        )
+                        products_to_create.append(prod)
+
+                        # 4. Parse Specific Details
+                        if is_electronics:
+                            brand = parse_brand(name)
+                            elec_detail = Electronics(
+                                product=prod,
+                                brand=brand,
+                                warranty=random.choice([12, 24, 36])
+                            )
+                            elec_details_to_create.append(elec_detail)
+                        else:
+                            author = "Đang cập nhật"
+                            publisher = "NXB Tổng hợp"
+                            if 'Tác giả' in desc:
+                                try:
+                                    part = desc.split('Tác giả')[1].replace(':', '').strip()
+                                    author = part.split('\n')[0].split(',')[0].split('.')[0].strip()
+                                except:
+                                    pass
+                            if 'Nhà xuất bản' in desc:
+                                try:
+                                    part = desc.split('Nhà xuất bản')[1].replace(':', '').strip()
+                                    publisher = part.split('\n')[0].split(',')[0].strip()
+                                except:
+                                    pass
+
+                            book = Book(
+                                product=prod,
+                                author=author[:255] if author else "Đang cập nhật",
+                                publisher=publisher[:255] if publisher else "NXB Tổng hợp",
+                                isbn=f"9786043{random.randint(100000, 999999)}"
+                            )
+                            books_to_create.append(book)
+
+                    except Exception:
+                        # Ignore malformed rows
+                        continue
+
+        self.stdout.write(f"Parsed {len(products_to_create)} total products from CSVs. Inserting...")
+        Product.objects.bulk_create(products_to_create, batch_size=1000)
+        Book.objects.bulk_create(books_to_create, batch_size=1000)
+        Electronics.objects.bulk_create(elec_details_to_create, batch_size=1000)
+        
+        self.stdout.write(f"Successfully imported {Book.objects.count()} books and {Electronics.objects.count()} electronics.")
 
         # 3. Seed Mock Fashion items
         self.stdout.write("Seeding mock Fashion...")

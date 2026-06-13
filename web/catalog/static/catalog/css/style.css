@@ -3,31 +3,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;430;450;480;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
 
 :root {
-  /* Steep design system colors */
-  --color-ink: #17191c;
+  /* UniqueShop Premium Golden-Brown Theme */
+  --color-primary: #F2B949;      /* Golden Yellow */
+  --color-light: #F2D394;         /* Light Golden */
+  --color-medium: #A67F32;        /* Medium Brown */
+  --color-dark: #543D10;          /* Dark Brown */
   --color-pure-white: #ffffff;
-  --color-fog: #f7f7f8;
-  --color-ash: #4c4c4c;
-  --color-graphite: #777b86;
-  --color-dove: #e2e4e9; /* Light daylight gray border */
-  --color-slate: #8b8c8d;
-  --color-obsidian: #000000;
-  --color-rust: #5d2a1a; /* Rust signature accent */
-  --color-apricot-wash: #fbe1d1; /* Soft peach warm wash */
-  --color-sky-wash: #d3e3fc; /* Soft cool sky wash */
+  --color-fog: #faf8f4;           /* Warm off-white */
+  --color-ash: #5a5350;
+  --color-graphite: #8b8680;
+  --color-dove: #e8e3dc;          /* Warm beige border */
+  --color-slate: #9b9390;
+  --color-obsidian: #2a2520;
+  --color-rust: #A67F32;          /* Brown accent */
+  --color-apricot-wash: #fef4e6;  /* Light golden wash */
+  --color-sky-wash: #f5f0e8;      /* Warm cream wash */
 
   /* Mappings */
   --bg-primary: var(--color-pure-white);
   --bg-secondary: var(--color-fog);
   --bg-card: var(--color-pure-white);
   --border-color: var(--color-dove);
-  --text-primary: var(--color-ink);
+  --text-primary: #3d3530;
   --text-secondary: var(--color-ash);
   --text-muted: var(--color-graphite);
   
-  --accent-color: var(--color-rust);
-  --accent-gradient: linear-gradient(135deg, var(--color-rust) 0%, #7e3e2b 100%);
-  --accent-glow: rgba(93, 42, 26, 0.08);
+  --accent-color: var(--color-primary);
+  --accent-gradient: linear-gradient(135deg, #F2B949 0%, #A67F32 100%);
+  --accent-glow: rgba(242, 185, 73, 0.12);
   --success-color: #16a34a;
   --danger-color: #dc2626;
   --warning-color: #d97706;
@@ -131,9 +134,12 @@ a {
 
 .logo {
     font-family: var(--font-signifier);
-    font-size: 1.6rem;
-    font-weight: 400;
-    color: var(--color-ink);
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #F2B949 0%, #A67F32 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     letter-spacing: -0.015em;
     display: flex;
     align-items: center;
@@ -145,7 +151,7 @@ a {
     display: inline-block;
     width: 8px;
     height: 8px;
-    background: var(--color-rust);
+    background: var(--color-primary);
     border-radius: 50%;
 }
 
@@ -168,24 +174,26 @@ a {
 
 /* Buttons */
 .btn-primary {
-    background: var(--color-ink);
-    color: var(--color-pure-white);
+    background: linear-gradient(135deg, #F2B949 0%, #A67F32 100%);
+    color: var(--color-obsidian);
     padding: 8px 20px;
     border-radius: var(--radius-buttons);
-    font-weight: 450;
+    font-weight: 600;
     font-size: 15px;
     border: none;
     cursor: pointer;
-    transition: background var(--transition-speed), transform var(--transition-speed);
+    transition: all var(--transition-speed);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(242, 185, 73, 0.25);
 }
 
 .btn-primary:hover {
-    background: var(--color-ash);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #A67F32 0%, #543D10 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(166, 127, 50, 0.35);
 }
 
 .btn-secondary {
@@ -323,9 +331,9 @@ h3, h4 {
 }
 
 .category-item.active a {
-    color: var(--color-rust);
-    font-weight: 480;
-    background: var(--color-apricot-wash);
+    color: var(--color-dark);
+    font-weight: 600;
+    background: linear-gradient(135deg, #FEF4E6 0%, #F2D394 100%);
 }
 
 /* Search and Sort Header */
@@ -477,11 +485,11 @@ h3, h4 {
 
 .product-rating {
     font-size: 13px;
-    color: var(--color-rust);
+    color: var(--color-primary);
     display: flex;
     align-items: center;
     gap: 4px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Pagination */
@@ -563,8 +571,11 @@ h3, h4 {
 
 .detail-price {
     font-size: 2.2rem;
-    font-weight: 600;
-    color: var(--color-rust);
+    font-weight: 700;
+    background: linear-gradient(135deg, #F2B949 0%, #A67F32 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 28px;
     font-family: var(--font-signifier);
 }
@@ -843,21 +854,24 @@ footer {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--color-ink);
+    background: linear-gradient(135deg, #F2B949 0%, #A67F32 100%);
     border: none;
     cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 8px 30px;
+    box-shadow: 0 4px 16px rgba(242, 185, 73, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-pure-white);
+    color: #3d3530;
     font-size: 1.4rem;
-    transition: transform 0.2s, background-color 0.2s;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-weight: 600;
 }
 
 .chat-trigger-btn:hover {
-    transform: scale(1.06);
-    background: var(--color-rust);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #A67F32 0%, #543D10 100%);
+    color: var(--color-pure-white);
+    box-shadow: 0 6px 24px rgba(166, 127, 50, 0.5);
 }
 
 .chat-popup {

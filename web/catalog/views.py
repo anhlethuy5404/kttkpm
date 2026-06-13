@@ -2,8 +2,17 @@ import random
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from .models import Product, Category
 from collections import defaultdict
+
+def add_cors_headers(response):
+    """Add CORS headers to response"""
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response
 
 def get_category_descendants(categories):
     """
@@ -26,7 +35,14 @@ def get_category_descendants(categories):
             
     return list(descendant_ids)
 
+@csrf_exempt
+@require_http_methods(["GET", "OPTIONS"])
 def product_list_api(request):
+    # Handle CORS preflight
+    if request.method == "OPTIONS":
+        response = JsonResponse({})
+        return add_cors_headers(response)
+    
     products = Product.objects.all().select_related('category')
     
     q = request.GET.get('q', '')
@@ -65,18 +81,26 @@ def product_list_api(request):
             'stock': p.stock,
             'rating_average': p.rating_average,
             'image_url': p.image_url,
-            'category': p.category.name if p.category else None,
+            'category': {'id': p.category.id, 'name': p.category.name} if p.category else None,
         }
         prod_list.append(item)
 
-    return JsonResponse({
+    response = JsonResponse({
         'products': prod_list,
         'page': page_obj.number,
         'total_pages': paginator.num_pages,
         'total_items': paginator.count
     })
+    return add_cors_headers(response)
 
+@csrf_exempt
+@require_http_methods(["GET", "OPTIONS"])
 def product_detail_api(request, pk):
+    # Handle CORS preflight
+    if request.method == "OPTIONS":
+        response = JsonResponse({})
+        return add_cors_headers(response)
+    
     product = get_object_or_404(Product, pk=pk)
     
     detail_data = {
@@ -85,9 +109,10 @@ def product_detail_api(request, pk):
         'price': float(product.price),
         'stock': product.stock,
         'description': product.description,
+        'short_description': product.description[:200] if product.description else '',
         'rating_average': product.rating_average,
         'image_url': product.image_url,
-        'category': product.category.name if product.category else None,
+        'category': {'id': product.category.id, 'name': product.category.name} if product.category else None,
         'type': 'generic'
     }
 
@@ -111,7 +136,8 @@ def product_detail_api(request, pk):
             'color': product.fashion_details.color
         }
 
-    return JsonResponse(detail_data)
+    response = JsonResponse(detail_data)
+    return add_cors_headers(response)
 
 # HTML Views for Storefront
 def home_view(request):

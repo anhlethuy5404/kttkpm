@@ -1,5 +1,5 @@
 {% extends 'catalog/base.html' %}
-{% block title %}{% if is_edit %}Sửa sản phẩm #{{ product.id }}{% else %}Thêm sản phẩm mới{% endif %} - E-Shop Storefront{% endblock %}
+{% block title %}{% if is_edit %}Sửa sản phẩm #{{ product.id }}{% else %}Thêm sản phẩm mới{% endif %} - Unique-Shop Storefront{% endblock %}
 
 {% block content %}
 <div class="form-card" style="max-width: 650px; padding: 32px;">
@@ -115,7 +115,7 @@
         const select = document.getElementById('id_category');
         if (!select) return;
         const selectedOption = select.options[select.selectedIndex];
-        const slug = selectedOption ? (selectedOption.getAttribute('data-slug') || '') : '';
+        const slug = selectedOption VND (selectedOption.getAttribute('data-slug') || '') : '';
 
         // Hide all subclass divs
         document.getElementById('book-fields').style.display = 'none';

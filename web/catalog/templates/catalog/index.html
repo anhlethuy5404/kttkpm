@@ -1,14 +1,14 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Chào mừng đến với E-Shop SOAD — Trải nghiệm mua sắm thế hệ mới{% endblock %}
+{% block title %}UniqueShop - Discover Premium Curated Products Online{% endblock %}
 
 {% block content %}
 <!-- Hero Section with Steep Warm Radial Glow -->
 <div style="position: relative; text-align: center; padding: 80px 0; margin-bottom: var(--spacing-64); background: radial-gradient(circle, rgba(251,225,209,0.3) 0%, rgba(255,255,255,0) 70%); border-radius: var(--radius-cards);">
-    <h1 style="font-family: var(--font-signifier); font-size: 3.5rem; font-weight: 400; color: var(--color-ink); letter-spacing: -1.6px; line-height: 1.1; max-width: 800px; margin: 0 auto 16px auto;">
-        Thế giới Tri thức & Thiết bị Đột phá
+    <h1 style="font-family: var(--font-signifier); font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #F2B949 0%, #A67F32 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -1.6px; line-height: 1.1; max-width: 800px; margin: 0 auto 16px auto;">
+        Premium Curated Collections, Delivered with Excellence
     </h1>
-    <p style="font-family: var(--font-sohne); font-size: 18px; color: var(--color-ash); max-width: 600px; margin: 0 auto 32px auto; line-height: 1.4;">
-        E-Shop SOAD là nền tảng mua sắm thông minh thế hệ mới, vận hành trên kiến trúc Microservices phân tán và được trợ lực bởi Trợ lý tư vấn AI thông thái.
+    <p style="font-family: var(--font-sohne); font-size: 18px; color: var(--color-ash); max-width: 600px; margin: 0 auto 32px auto; line-height: 1.6;">
+        UniqueShop is your destination for handpicked luxury items. Discover premium books, cutting-edge electronics, and exclusive fashion curated just for you, powered by intelligent AI recommendations.
     </p>
     <div style="display: inline-flex; align-items: center; gap: 16px; justify-content: center;">
         <a href="{% url 'store' %}" class="btn-primary">Khám Phá Cửa Hàng</a>
@@ -23,8 +23,8 @@
 <!-- Section: Hot Products -->
 <div style="margin-bottom: 64px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
-        <h2 style="margin-bottom: 0;">Sản Phẩm Đang Hot</h2>
-        <a href="{% url 'store' %}?sort=rating" style="font-size: 14px; font-weight: 500; color: var(--color-rust); text-decoration: underline;">Xem tất cả</a>
+        <h2 style="margin-bottom: 0;">Trending Now</h2>
+        <a href="{% url 'store' %}sort=rating" style="font-size: 14px; font-weight: 600; color: var(--color-primary); text-decoration: underline;">View all</a>
     </div>
     
     <div class="product-grid">
@@ -59,10 +59,10 @@
     {% if user.is_authenticated %}
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
             <div>
-                <h2 style="margin-bottom: 8px;">Gợi Ý Dành Riêng Cho Bạn</h2>
-                <p style="color: var(--text-secondary); font-size: 15px; margin: 0;">Dựa trên sở thích mua sắm và lịch sử hoạt động của bạn.</p>
+                <h2 style="margin-bottom: 8px;">Your Personalized Picks</h2>
+                <p style="color: var(--text-secondary); font-size: 15px; margin: 0;">Handpicked selections based on your unique taste and shopping history.</p>
             </div>
-            <a href="{% url 'recommendations' %}" class="btn-secondary">Xem báo cáo đề xuất</a>
+            <a href="{% url 'recommendations' %}" class="btn-secondary">View recommendations</a>
         </div>
         
         <div class="product-grid" style="margin-bottom: 0;">
@@ -85,7 +85,7 @@
                         <div class="product-meta">
                             <span class="product-price">{{ prod.price|floatformat:"0" }} đ</span>
                             <span class="product-rating">
-                                ★ {{ prod.rating_average|floatformat:1 }} (AI: {% widthratio forloop.counter 1 12|add:75 %}%)
+                                ★ {{ prod.rating_average|floatformat:1 }}
                             </span>
                         </div>
                     </div>
@@ -94,59 +94,14 @@
         </div>
     {% else %}
         <div style="text-align: center; max-width: 500px; margin: 0 auto; padding: 20px 0;">
-            <div style="font-size: 3rem; margin-bottom: 16px;">✨</div>
-            <h2 style="font-size: 1.8rem; margin-bottom: 12px;">Gợi Ý Mua Sắm Cá Nhân Hóa</h2>
+            <div style="font-size: 3rem; margin-bottom: 16px;">💎</div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 12px;">Unlock Your Personal Shopper</h2>
             <p style="color: var(--text-secondary); font-size: 15px; margin-bottom: 24px;">
-                Đăng nhập tài khoản để hệ thống AI của chúng tôi phân tích hành vi và đề xuất những tựa sách, sản phẩm thời trang hay thiết bị điện tử tối ưu nhất dành cho bạn.
+                Sign in to access AI-powered recommendations. Our intelligent system learns your preferences and curates the perfect selection of luxury books, fashion, and gadgets just for you.
             </p>
-            <a href="{% url 'login' %}" class="btn-primary">Đăng Nhập Ngay</a>
+            <a href="{% url 'login' %}" class="btn-primary">Sign In Now</a>
         </div>
     {% endif %}
 </div>
 
-<!-- Section: System Architecture (Bounded Contexts) -->
-<div style="margin-bottom: 32px;">
-    <h2 style="text-align: center; margin-bottom: 16px;">Hệ Thống Microservices</h2>
-    <p style="text-align: center; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px auto; font-size: 15px;">
-        Được xây dựng tuân thủ phương pháp thiết kế Domain-Driven Design (DDD), phân rã hệ thống thành các dịch vụ độc lập với cơ sở dữ liệu riêng biệt.
-    </p>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
-        <!-- Card 1: User Service -->
-        <div style="background: var(--color-pure-white); border: 1px solid var(--border-color); border-radius: var(--radius-cards); padding: 24px; box-shadow: var(--shadow-subtle);">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-apricot-wash); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-weight: bold; color: var(--color-rust);">U</div>
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">User Service</h3>
-            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
-                Quản lý hồ sơ người dùng, phân quyền vai trò (Admin, Khách hàng) và xác thực an toàn thông qua kiến chế mã JWT độc lập.
-            </p>
-        </div>
-
-        <!-- Card 2: Catalog Service -->
-        <div style="background: var(--color-pure-white); border: 1px solid var(--border-color); border-radius: var(--radius-cards); padding: 24px; box-shadow: var(--shadow-subtle);">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-sky-wash); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-weight: bold; color: #1d4ed8;">P</div>
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Product Catalog</h3>
-            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
-                Danh mục lưu trữ hàng ngàn sản phẩm đa dạng gồm Sách, Thiết bị Điện tử và Thời trang với cơ chế lọc thông minh.
-            </p>
-        </div>
-
-        <!-- Card 3: Cart Service -->
-        <div style="background: var(--color-pure-white); border: 1px solid var(--border-color); border-radius: var(--radius-cards); padding: 24px; box-shadow: var(--shadow-subtle);">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-apricot-wash); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-weight: bold; color: var(--color-rust);">C</div>
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Cart Service</h3>
-            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
-                Xử lý giỏ hàng trực tuyến thời gian thực, lưu trữ danh sách chọn và cập nhật số lượng trực quan trước khi thanh toán.
-            </p>
-        </div>
-
-        <!-- Card 4: Order Service -->
-        <div style="background: var(--color-pure-white); border: 1px solid var(--border-color); border-radius: var(--radius-cards); padding: 24px; box-shadow: var(--shadow-subtle);">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-sky-wash); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-weight: bold; color: #1d4ed8;">O</div>
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Order & Shipping</h3>
-            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
-                Quản lý vòng đời đơn hàng, lập hóa đơn, theo dõi hành trình vận chuyển thời gian thực đồng bộ với cổng thanh toán.
-            </p>
-        </div>
-    </div>
-</div>
 {% endblock %}
